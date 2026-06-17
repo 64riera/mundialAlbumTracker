@@ -1,0 +1,57 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Section {
+  id            String      @id @default(cuid())
+  code          String      @unique
+  name          String
+  type          SectionType
+  flagEmoji     String?
+  confederation String?
+  order         Int
+  stickers      Sticker[]
+  createdAt     DateTime    @default(now())
+}
+
+enum SectionType {
+  INTRO
+  TEAM
+  SPECIAL
+}
+
+model Sticker {
+  id          String      @id @default(cuid())
+  number      Int         @unique
+  name        String
+  type        StickerType
+  isShiny     Boolean     @default(false)
+  sectionId   String
+  section     Section     @relation(fields: [sectionId], references: [id])
+  userSticker UserSticker?
+  createdAt   DateTime    @default(now())
+
+  @@index([sectionId])
+}
+
+enum StickerType {
+  PLAYER
+  BADGE
+  STADIUM
+  GROUP
+  SPECIAL
+  INTRO
+}
+
+model UserSticker {
+  id        String   @id @default(cuid())
+  stickerId String   @unique
+  sticker   Sticker  @relation(fields: [stickerId], references: [id])
+  quantity  Int      @default(0)
+  updatedAt DateTime @updatedAt
+}

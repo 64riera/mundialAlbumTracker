@@ -1,0 +1,52 @@
+export type SectionType = "INTRO" | "TEAM" | "SPECIAL";
+export type StickerType = "PLAYER" | "BADGE" | "STADIUM" | "GROUP" | "SPECIAL" | "INTRO";
+
+export interface SectionSummary {
+  id: string;
+  code: string;
+  name: string;
+  type: SectionType;
+  flagEmoji: string | null;
+  confederation: string | null;
+  order: number;
+  total: number;
+  owned: number;
+  percentage: number;
+}
+
+export interface StickerSummary {
+  id: string;
+  number: number;
+  name: string;
+  type: StickerType;
+  isShiny: boolean;
+  quantity: number;
+  section?: {
+    code: string;
+    name: string;
+    flagEmoji: string | null;
+  };
+}
+
+export interface SectionDetail extends SectionSummary {
+  stickers: StickerSummary[];
+}
+
+export interface OverviewStats {
+  total: number;
+  owned: number;
+  duplicate: number;
+  missing: number;
+  percentage: number;
+}
+
+export interface SectionStats {
+  code: string;
+  name: string;
+  flagEmoji: string | null;
+  confederation: string | null;
+  type: SectionType;
+  total: number;
+  owned: number;
+  percentage: number;
+}
