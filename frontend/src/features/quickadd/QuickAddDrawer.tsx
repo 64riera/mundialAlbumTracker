@@ -3,6 +3,7 @@ import { useBulkCollectByCodes, useSearchStickers } from "@/hooks/useStickers";
 import { useUIStore } from "@/store/uiStore";
 import { useT } from "@/lib/i18n";
 import { showToast } from "@/components/ui/Toast";
+import { confettiBulk } from "@/lib/confetti";
 import { X, Plus, Search, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
@@ -54,6 +55,7 @@ export function QuickAddDrawer() {
       onSuccess: (data) => {
         setRecent((prev) => [codes.join(", "), ...prev].slice(0, 5));
         setSelected([]);
+        confettiBulk(data.updated);
         const n = data.updated;
         showToast(`${n} ${n !== 1 ? t.quickadd.stickersAdded : t.quickadd.stickerAdded}`);
       },

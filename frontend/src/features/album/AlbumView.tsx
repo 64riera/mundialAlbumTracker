@@ -7,6 +7,7 @@ import { StickerGrid } from "./StickerGrid";
 import { FilterBar } from "./FilterBar";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { showToast } from "@/components/ui/Toast";
+import { confettiCollect } from "@/lib/confetti";
 import type { StickerSummary } from "@/types";
 
 export function AlbumView() {
@@ -26,6 +27,7 @@ export function AlbumView() {
       { number: sticker.number, quantity: newQuantity },
       {
         onSuccess: () => {
+          if (newQuantity === 1) confettiCollect();
           showToast(
             `${newQuantity === 1 ? "+" : "-"} ${sticker.code} ${sticker.name} ${newQuantity === 1 ? t.album.added : t.album.removed}`,
             newQuantity !== prevQuantity
