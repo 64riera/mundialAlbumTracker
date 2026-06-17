@@ -1,7 +1,7 @@
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useOcrScanner } from "./useOcrScanner";
-import { useBulkCollectByCodes } from "@/hooks/useStickers";
+import { useStickers, useBulkCollectByCodes } from "@/hooks/useStickers";
 import { useT } from "@/lib/i18n";
 import { confettiBulk } from "@/lib/confetti";
 import { showToast } from "@/components/ui/Toast";
@@ -23,6 +23,8 @@ export function ScannerPage() {
   const navigate = useNavigate();
   const videoRef = useRef<HTMLVideoElement>(null);
   const bulkCollect = useBulkCollectByCodes();
+  const { data: allStickers = [] } = useStickers();
+  const validCodes = useMemo(() => allStickers.map((s) => s.code), [allStickers]);
   const [cameraError, setCameraError] = useState(false);
   const [showDebug, setShowDebug] = useState(false);
 
@@ -40,7 +42,7 @@ export function ScannerPage() {
     removeCode,
     clearAll,
     cleanup,
-  } = useOcrScanner();
+  } = useOcrScanner(validCodes);
 
   useEffect(() => {
     initWorker();

@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { createWorker, Worker } from "tesseract.js";
-import { extractStickerCodes } from "@/lib/ocrMatcher";
+import { extractStickerCodes, matchToValidCodes } from "@/lib/ocrMatcher";
 
 interface OcrScannerState {
   isReady: boolean;
@@ -34,7 +34,7 @@ function adaptiveThreshold(ctx: CanvasRenderingContext2D, w: number, h: number) 
   ctx.putImageData(img, 0, 0);
 }
 
-export function useOcrScanner() {
+export function useOcrScanner(validCodes: string[]) {
   const [state, setState] = useState<OcrScannerState>({
     isReady: false,
     isScanning: false,
@@ -112,7 +112,10 @@ export function useOcrScanner() {
 
       setState((s) => ({ ...s, debugText: rawText, debugImage: dataUrl }));
 
-      const codes = extractStickerCodes(rawText);
+      const candidates = extractStickerCodes(rawText);
+      const codes = validCodes.length > 0
+        ? matchToValidCodes(candidates, validCodes)
+        : candidates;
       if (codes.length === 0) return;
 
       const newCodes = codes.filter((c) => !scannedSetRef.current.has(c));
@@ -127,7 +130,7 @@ export function useOcrScanner() {
     } finally {
       busyRef.current = false;
     }
-  }, [getOffscreen]);
+  }, [getOffscreen, validCodes]);
 
   const startScanning = useCallback(() => {
     if (intervalRef.current) return;

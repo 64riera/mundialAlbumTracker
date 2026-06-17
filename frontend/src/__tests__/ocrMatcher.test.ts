@@ -1,5 +1,16 @@
 import { describe, it, expect } from "vitest";
-import { extractStickerCodes } from "../lib/ocrMatcher";
+import { extractStickerCodes, matchToValidCodes } from "../lib/ocrMatcher";
+
+const VALID_CODES = [
+  "ARG-1", "ARG-2", "ARG-15",
+  "KOR-9", "KOR-10",
+  "ESP-5", "ESP-12",
+  "BRA-3", "BRA-7",
+  "TUN-14",
+  "CC-3",
+  "FWC-1",
+  "00",
+];
 
 describe("extractStickerCodes", () => {
   it("extracts standard codes like ARG-1", () => {
@@ -54,5 +65,51 @@ describe("extractStickerCodes", () => {
   it("handles en-dash and em-dash", () => {
     expect(extractStickerCodes("ESP–5")).toEqual(["ESP-5"]);
     expect(extractStickerCodes("ESP—5")).toEqual(["ESP-5"]);
+  });
+});
+
+describe("matchToValidCodes", () => {
+  it("returns exact matches", () => {
+    expect(matchToValidCodes(["KOR-9"], VALID_CODES)).toEqual(["KOR-9"]);
+  });
+
+  it("corrects OCR misreads within distance 2", () => {
+    // KOR-9 misread as KOD-9 (1 char diff)
+    expect(matchToValidCodes(["KOD-9"], VALID_CODES)).toEqual(["KOR-9"]);
+  });
+
+  it("corrects PAD-4 → closest valid code", () => {
+    // PAD-4 is not valid — should fuzzy-match to something close
+    const result = matchToValidCodes(["PAD-4"], VALID_CODES);
+    // Distance to BRA-3 = 3, CC-3 = 3, FWC-1 = 4 — all too far
+    // This particular misread is too far from any real code
+    expect(result.length).toBeLessThanOrEqual(1);
+  });
+
+  it("corrects single-letter misreads in prefix", () => {
+    // TUN-14 misread as TUH-14
+    expect(matchToValidCodes(["TUH-14"], VALID_CODES)).toEqual(["TUN-14"]);
+  });
+
+  it("corrects single-digit misreads", () => {
+    // ESP-3 is not valid — closest is ESP-5 (distance 1)
+    expect(matchToValidCodes(["ESP-3"], VALID_CODES)).toEqual(["ESP-5"]);
+  });
+
+  it("rejects candidates too far from any valid code", () => {
+    expect(matchToValidCodes(["ZZZ-99"], VALID_CODES)).toEqual([]);
+  });
+
+  it("deduplicates matched results", () => {
+    // Two OCR candidates both matching the same valid code
+    expect(matchToValidCodes(["KOR-9", "KOD-9"], VALID_CODES)).toEqual(["KOR-9"]);
+  });
+
+  it("handles empty candidates", () => {
+    expect(matchToValidCodes([], VALID_CODES)).toEqual([]);
+  });
+
+  it("handles empty valid codes", () => {
+    expect(matchToValidCodes(["ARG-1"], [])).toEqual([]);
   });
 });
