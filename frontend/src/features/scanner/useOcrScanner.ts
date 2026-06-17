@@ -11,28 +11,53 @@ interface OcrScannerState {
   debugImage: string;
 }
 
-const SCALE = 3;
+function processCodeRegion(
+  video: HTMLVideoElement,
+  canvas: HTMLCanvasElement,
+  rect: { x: number; y: number; w: number; h: number }
+) {
+  const SCALE = 4;
+  const { x, y, w, h } = rect;
 
-function enhanceForOcr(ctx: CanvasRenderingContext2D, w: number, h: number) {
-  const img = ctx.getImageData(0, 0, w, h);
+  canvas.width = w * SCALE;
+  canvas.height = h * SCALE;
+
+  const ctx = canvas.getContext("2d", { willReadFrequently: true })!;
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+  ctx.drawImage(video, x, y, w, h, 0, 0, canvas.width, canvas.height);
+
+  const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
   const d = img.data;
 
-  // Grayscale + contrast stretch
-  let min = 255, max = 0;
+  // Grayscale
   for (let i = 0; i < d.length; i += 4) {
-    const gray = Math.round(d[i] * 0.299 + d[i + 1] * 0.587 + d[i + 2] * 0.114);
-    d[i] = gray; d[i + 1] = gray; d[i + 2] = gray;
-    if (gray < min) min = gray;
-    if (gray > max) max = gray;
+    const g = Math.round(d[i] * 0.299 + d[i + 1] * 0.587 + d[i + 2] * 0.114);
+    d[i] = g; d[i + 1] = g; d[i + 2] = g;
   }
 
+  // Find mean to decide if text is light-on-dark (needs inversion)
+  let sum = 0;
+  for (let i = 0; i < d.length; i += 4) sum += d[i];
+  const mean = sum / (canvas.width * canvas.height);
+  const needsInvert = mean < 140;
+
+  // Invert if dark background + contrast stretch
+  let min = 255, max = 0;
+  for (let i = 0; i < d.length; i += 4) {
+    const v = needsInvert ? 255 - d[i] : d[i];
+    d[i] = v; d[i + 1] = v; d[i + 2] = v;
+    if (v < min) min = v;
+    if (v > max) max = v;
+  }
   const range = max - min || 1;
   for (let i = 0; i < d.length; i += 4) {
-    const stretched = Math.round(((d[i] - min) / range) * 255);
+    const stretched = Math.min(255, Math.max(0, Math.round(((d[i] - min) / range) * 255)));
     d[i] = stretched; d[i + 1] = stretched; d[i + 2] = stretched;
   }
 
   ctx.putImageData(img, 0, 0);
+  return canvas.toDataURL("image/png");
 }
 
 export function useOcrScanner(validCodes: string[]) {
@@ -53,19 +78,15 @@ export function useOcrScanner(validCodes: string[]) {
   const busyRef = useRef(false);
 
   const getOffscreen = useCallback(() => {
-    if (!offscreenRef.current) {
-      offscreenRef.current = document.createElement("canvas");
-    }
+    if (!offscreenRef.current) offscreenRef.current = document.createElement("canvas");
     return offscreenRef.current;
   }, []);
 
   const initWorker = useCallback(async () => {
-    const worker = await createWorker("eng", 1, {
-      logger: () => {},
-    });
+    const worker = await createWorker("eng", 1, { logger: () => {} });
     await worker.setParameters({
-      tessedit_char_whitelist: "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 -",
-      tessedit_pageseg_mode: "11" as unknown as undefined, // sparse text
+      tessedit_char_whitelist: "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ",
+      tessedit_pageseg_mode: "7" as unknown as undefined, // single line
     });
     workerRef.current = worker;
     setState((s) => ({ ...s, isReady: true }));
@@ -92,31 +113,15 @@ export function useOcrScanner(validCodes: string[]) {
       const vh = video.videoHeight;
       if (vw === 0 || vh === 0) return;
 
-      // Crop center 60% height, full width
-      const cropH = Math.round(vh * 0.6);
-      const cropY = Math.round((vh - cropH) / 2);
+      // Target rectangle: center of the frame, sized for the code badge
+      const rect = {
+        x: Math.round(vw * 0.2),
+        y: Math.round(vh * 0.3),
+        w: Math.round(vw * 0.6),
+        h: Math.round(vh * 0.4),
+      };
 
-      const canvas = getOffscreen();
-      canvas.width = vw * SCALE;
-      canvas.height = cropH * SCALE;
-
-      const ctx = canvas.getContext("2d", { willReadFrequently: true });
-      if (!ctx) return;
-
-      ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = "high";
-      ctx.drawImage(video, 0, cropY, vw, cropH, 0, 0, canvas.width, canvas.height);
-
-      // Sharpen: slight unsharp mask via composite
-      ctx.globalAlpha = 0.4;
-      ctx.globalCompositeOperation = "multiply";
-      ctx.drawImage(canvas, 0, 0);
-      ctx.globalAlpha = 1;
-      ctx.globalCompositeOperation = "source-over";
-
-      enhanceForOcr(ctx, canvas.width, canvas.height);
-
-      const dataUrl = canvas.toDataURL("image/png");
+      const dataUrl = processCodeRegion(video, getOffscreen(), rect);
       const { data } = await worker.recognize(dataUrl);
       const rawText = data.text.trim();
 
@@ -144,14 +149,11 @@ export function useOcrScanner(validCodes: string[]) {
   const startScanning = useCallback(() => {
     if (intervalRef.current) return;
     setState((s) => ({ ...s, isScanning: true }));
-    intervalRef.current = window.setInterval(captureAndRecognize, 1200);
+    intervalRef.current = window.setInterval(captureAndRecognize, 1000);
   }, [captureAndRecognize]);
 
   const stopScanning = useCallback(() => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
+    if (intervalRef.current) { clearInterval(intervalRef.current); intervalRef.current = null; }
     setState((s) => ({ ...s, isScanning: false }));
   }, []);
 
@@ -176,18 +178,7 @@ export function useOcrScanner(validCodes: string[]) {
     workerRef.current = null;
   }, [stopScanning]);
 
-  useEffect(() => {
-    return cleanup;
-  }, [cleanup]);
+  useEffect(() => { return cleanup; }, [cleanup]);
 
-  return {
-    ...state,
-    initWorker,
-    startCamera,
-    startScanning,
-    stopScanning,
-    removeCode,
-    clearAll,
-    cleanup,
-  };
+  return { ...state, initWorker, startCamera, startScanning, stopScanning, removeCode, clearAll, cleanup };
 }

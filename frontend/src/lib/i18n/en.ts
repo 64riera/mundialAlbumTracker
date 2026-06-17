@@ -122,7 +122,8 @@ export const en = {
   },
   scanner: {
     title: "Scan stickers",
-    description: "Point the camera at the sticker code. It will be detected automatically.",
+    description: "Place the sticker code inside the frame. It will be detected automatically.",
+    targetHint: "Place the code here",
     loading: "Loading OCR...",
     scanning: "Scanning...",
     pause: "Pause scanning",

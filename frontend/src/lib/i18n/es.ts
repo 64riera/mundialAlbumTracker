@@ -122,7 +122,8 @@ export const es = {
   },
   scanner: {
     title: "Escanear figuritas",
-    description: "Apunta la camara al codigo de la figurita. Se detectara automaticamente.",
+    description: "Coloca el codigo de la figurita dentro del recuadro. Se detectara automaticamente.",
+    targetHint: "Coloca el codigo aqui",
     loading: "Cargando OCR...",
     scanning: "Escaneando...",
     pause: "Pausar escaneo",
