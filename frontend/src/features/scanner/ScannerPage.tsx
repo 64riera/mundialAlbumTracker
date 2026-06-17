@@ -66,9 +66,14 @@ export function ScannerPage() {
   const handleConfirm = () => {
     if (scannedCodes.length === 0) return;
     bulkCollect.mutate(scannedCodes, {
-      onSuccess: (data) => {
-        confettiBulk(data.updated);
-        showToast(`${data.updated} ${data.updated !== 1 ? t.quickadd.stickersAdded : t.quickadd.stickerAdded}`);
+      onSuccess: (result) => {
+        if (result.queued) {
+          showToast(`${scannedCodes.length} ${t.pwa.savedOffline}`);
+          navigate("/stats");
+          return;
+        }
+        confettiBulk(result.data.updated);
+        showToast(`${result.data.updated} ${result.data.updated !== 1 ? t.quickadd.stickersAdded : t.quickadd.stickerAdded}`);
         navigate("/stats");
       },
     });

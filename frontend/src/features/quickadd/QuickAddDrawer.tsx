@@ -52,11 +52,15 @@ export function QuickAddDrawer() {
     if (selected.length === 0) return;
     const codes = selected.map((s) => s.code);
     bulkCollect.mutate(codes, {
-      onSuccess: (data) => {
+      onSuccess: (result) => {
         setRecent((prev) => [codes.join(", "), ...prev].slice(0, 5));
         setSelected([]);
-        confettiBulk(data.updated);
-        const n = data.updated;
+        if (result.queued) {
+          showToast(`${codes.length} ${t.pwa.savedOffline}`);
+          return;
+        }
+        confettiBulk(result.data.updated);
+        const n = result.data.updated;
         showToast(`${n} ${n !== 1 ? t.quickadd.stickersAdded : t.quickadd.stickerAdded}`);
       },
     });

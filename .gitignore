@@ -10,6 +10,7 @@ node_modules/
 
 # Build outputs
 dist/
+dev-dist/
 coverage/
 build/
 .next/
@@ -34,3 +35,4 @@ backend/prisma/dev.db-journal
 # Logs
 *.log
 npm-debug.log*
+.vercel

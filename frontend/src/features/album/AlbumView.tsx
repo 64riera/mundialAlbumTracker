@@ -26,7 +26,11 @@ export function AlbumView() {
     collectSticker.mutate(
       { number: sticker.number, quantity: newQuantity },
       {
-        onSuccess: () => {
+        onSuccess: (result) => {
+          if (result.queued) {
+            showToast(`${sticker.code} — ${t.pwa.savedOffline}`);
+            return;
+          }
           if (newQuantity === 1) confettiCollect();
           showToast(
             `${newQuantity === 1 ? "+" : "-"} ${sticker.code} ${sticker.name} ${newQuantity === 1 ? t.album.added : t.album.removed}`,
@@ -43,7 +47,11 @@ export function AlbumView() {
     collectSticker.mutate(
       { number: sticker.number, quantity: sticker.quantity + 1 },
       {
-        onSuccess: () => {
+        onSuccess: (result) => {
+          if (result.queued) {
+            showToast(`${sticker.code} — ${t.pwa.savedOffline}`);
+            return;
+          }
           showToast(`+1 ${t.album.duplicateAdded}: ${sticker.code} ${sticker.name}`);
         },
       }

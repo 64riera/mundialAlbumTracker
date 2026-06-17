@@ -153,6 +153,16 @@ export const es = {
     myDuplicates: "mis sobrantes",
     theyHave: "tiene",
   },
+  pwa: {
+    install: "Instalar app",
+    offline: "Sin conexion",
+    syncing: "Sincronizando...",
+    synced: "Cambios sincronizados",
+    pendingChanges: "cambios pendientes",
+    syncNow: "Sincronizar",
+    savedOffline: "Guardado offline",
+    changesSynced: "cambios sincronizados",
+  },
   common: {
     language: "Idioma",
     spanish: "Espanol",

@@ -4,10 +4,11 @@ import { useLogout } from "@/hooks/useAuth";
 import { useUIStore } from "@/store/uiStore";
 import { useAuthStore } from "@/store/authStore";
 import { useT } from "@/lib/i18n";
+import { usePwaInstall } from "@/hooks/usePwaInstall";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { LangToggle } from "@/components/ui/LangToggle";
-import { Menu, LogOut, X, Trophy } from "lucide-react";
+import { Menu, LogOut, X, Trophy, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function Header() {
@@ -16,6 +17,7 @@ export function Header() {
   const { setSidebarOpen, sidebarOpen } = useUIStore();
   const user = useAuthStore((s) => s.user);
   const logout = useLogout();
+  const { canInstall, install } = usePwaInstall();
 
   const NAV_LINKS = [
     { to: "/stats", label: t.nav.home },
@@ -62,6 +64,16 @@ export function Header() {
         )}
 
         <div className="ml-auto flex items-center gap-2">
+          {canInstall && (
+            <button
+              onClick={install}
+              className="flex items-center gap-1.5 text-xs font-medium bg-gold-400/20 text-gold-300 hover:bg-gold-400/30 px-2.5 py-1.5 rounded-lg transition-colors"
+              title={t.pwa.install}
+            >
+              <Download size={14} />
+              <span className="hidden sm:inline">{t.pwa.install}</span>
+            </button>
+          )}
           <LangToggle />
           <ThemeToggle />
 

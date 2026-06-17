@@ -153,6 +153,16 @@ export const en = {
     myDuplicates: "my extras",
     theyHave: "has",
   },
+  pwa: {
+    install: "Install app",
+    offline: "Offline",
+    syncing: "Syncing...",
+    synced: "Changes synced",
+    pendingChanges: "pending changes",
+    syncNow: "Sync now",
+    savedOffline: "Saved offline",
+    changesSynced: "changes synced",
+  },
   common: {
     language: "Language",
     spanish: "Espanol",

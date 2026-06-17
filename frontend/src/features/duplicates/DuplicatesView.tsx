@@ -15,7 +15,11 @@ export function DuplicatesView() {
     }
     collectSticker.mutate(
       { number, quantity: quantity - 1 },
-      { onSuccess: () => showToast(`-1: #${number} ${name}`) }
+      {
+        onSuccess: (result) => {
+          showToast(result.queued ? `#${number} — ${t.pwa.savedOffline}` : `-1: #${number} ${name}`);
+        },
+      }
     );
   };
 

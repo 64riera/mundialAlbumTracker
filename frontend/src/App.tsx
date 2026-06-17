@@ -11,6 +11,7 @@ import { MatchesPage } from "@/features/matches/MatchesPage";
 import { QuickAddDrawer, QuickAddFAB } from "@/features/quickadd/QuickAddDrawer";
 import { ToastContainer } from "@/components/ui/Toast";
 import { MobileNav } from "@/components/MobileNav";
+import { OfflineBanner } from "@/components/OfflineBanner";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { LoginPage } from "@/features/auth/LoginPage";
 import { RegisterPage } from "@/features/auth/RegisterPage";
@@ -24,6 +25,7 @@ function AppShell() {
   return (
     <div className="h-screen flex flex-col bg-slate-50 dark:bg-slate-950 overflow-hidden">
       <Header />
+      <OfflineBanner />
 
       <div className="flex flex-1 overflow-hidden relative">
         {/* Mobile sidebar overlay */}

@@ -1,8 +1,26 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { enqueueAction } from "@/lib/offlineQueue";
 import type { StickerSummary } from "@/types";
 
-export function useStickers(status?: "all" | "owned" | "missing" | "duplicate") {
+const STICKER_QUERY_KEYS = [
+  ["section"],
+  ["sections"],
+  ["stats"],
+  ["stickers"],
+] as const;
+
+function useInvalidateStickers() {
+  const qc = useQueryClient();
+  return () =>
+    STICKER_QUERY_KEYS.forEach((key) =>
+      qc.invalidateQueries({ queryKey: [...key] })
+    );
+}
+
+export function useStickers(
+  status?: "all" | "owned" | "missing" | "duplicate"
+) {
   return useQuery<StickerSummary[]>({
     queryKey: ["stickers", status ?? "all"],
     queryFn: () =>
@@ -24,45 +42,64 @@ export function useSearchStickers(query: string) {
 }
 
 export function useCollectSticker() {
-  const qc = useQueryClient();
+  const invalidate = useInvalidateStickers();
   return useMutation({
-    mutationFn: ({ number, quantity }: { number: number; quantity: number }) =>
-      api.patch(`/api/stickers/${number}/collect`, { quantity }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["section"] });
-      qc.invalidateQueries({ queryKey: ["sections"] });
-      qc.invalidateQueries({ queryKey: ["stats"] });
-      qc.invalidateQueries({ queryKey: ["stickers"] });
+    mutationFn: async ({
+      number,
+      quantity,
+    }: {
+      number: number;
+      quantity: number;
+    }) => {
+      if (!navigator.onLine) {
+        await enqueueAction("collect", { number, quantity });
+        return { queued: true } as const;
+      }
+      const res = await api.patch(`/api/stickers/${number}/collect`, {
+        quantity,
+      });
+      return { queued: false, data: res.data } as const;
+    },
+    onSuccess: (result) => {
+      if (!result.queued) invalidate();
     },
   });
 }
 
 export function useBulkCollect() {
-  const qc = useQueryClient();
+  const invalidate = useInvalidateStickers();
   return useMutation({
-    mutationFn: (numbers: number[]) =>
-      api.post("/api/stickers/bulk-collect", { numbers }).then((r) => r.data),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["section"] });
-      qc.invalidateQueries({ queryKey: ["sections"] });
-      qc.invalidateQueries({ queryKey: ["stats"] });
-      qc.invalidateQueries({ queryKey: ["stickers"] });
+    mutationFn: async (numbers: number[]) => {
+      if (!navigator.onLine) {
+        await enqueueAction("bulkCollect", { numbers });
+        return { queued: true } as const;
+      }
+      const res = await api
+        .post("/api/stickers/bulk-collect", { numbers })
+        .then((r) => r.data);
+      return { queued: false, data: res } as const;
+    },
+    onSuccess: (result) => {
+      if (!result.queued) invalidate();
     },
   });
 }
 
 export function useBulkCollectByCodes() {
-  const qc = useQueryClient();
+  const invalidate = useInvalidateStickers();
   return useMutation({
-    mutationFn: (codes: string[]) =>
-      api
+    mutationFn: async (codes: string[]) => {
+      if (!navigator.onLine) {
+        await enqueueAction("bulkCollectByCodes", { codes });
+        return { queued: true } as const;
+      }
+      const res = await api
         .post("/api/stickers/bulk-collect-codes", { codes })
-        .then((r) => r.data),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["section"] });
-      qc.invalidateQueries({ queryKey: ["sections"] });
-      qc.invalidateQueries({ queryKey: ["stats"] });
-      qc.invalidateQueries({ queryKey: ["stickers"] });
+        .then((r) => r.data);
+      return { queued: false, data: res } as const;
+    },
+    onSuccess: (result) => {
+      if (!result.queued) invalidate();
     },
   });
 }
