@@ -18,7 +18,6 @@ import { cn } from "@/lib/utils";
 
 function AppShell() {
   const { sidebarOpen, setSidebarOpen } = useUIStore();
-  useThemeEffect();
 
   return (
     <div className="h-screen flex flex-col bg-slate-50 dark:bg-slate-950 overflow-hidden">
@@ -68,6 +67,8 @@ function AppShell() {
 }
 
 export default function App() {
+  useThemeEffect();
+
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
