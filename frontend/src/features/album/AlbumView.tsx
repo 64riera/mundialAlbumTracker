@@ -5,6 +5,7 @@ import { useUIStore } from "@/store/uiStore";
 import { useT } from "@/lib/i18n";
 import { StickerGrid } from "./StickerGrid";
 import { FilterBar } from "./FilterBar";
+import { SectionPicker } from "./SectionPicker";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { showToast } from "@/components/ui/Toast";
 import { confettiCollect } from "@/lib/confetti";
@@ -96,6 +97,7 @@ export function AlbumView() {
           <ProgressBar value={section.owned} max={section.total} size="lg" />
         </div>
       </div>
+      <SectionPicker currentCode={sectionCode} />
       <FilterBar stickers={section.stickers} active={stickerFilter} onChange={setStickerFilter} />
       <StickerGrid stickers={section.stickers} filter={stickerFilter} onToggle={handleToggle} onIncrement={handleIncrement} />
     </div>

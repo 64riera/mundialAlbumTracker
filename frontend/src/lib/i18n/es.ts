@@ -19,6 +19,8 @@ export const es = {
     sections: "Secciones",
     teams: "Selecciones",
     completed: "completado",
+    searchPlaceholder: "Buscar seleccion...",
+    noResults: "Sin resultados",
   },
   auth: {
     login: "Iniciar sesion",
@@ -44,6 +46,8 @@ export const es = {
     stickers: "figuritas",
     sectionNotFound: "No se encontro la seccion",
     noStickersInCategory: "Sin figuritas en esta categoria",
+    goToSection: "Ir a seleccion",
+    searchSection: "Buscar seleccion...",
     addDuplicate: "Agregar duplicada",
     have: "Tengo",
     need: "Falta",

@@ -19,6 +19,8 @@ export const en = {
     sections: "Sections",
     teams: "Teams",
     completed: "completed",
+    searchPlaceholder: "Search team...",
+    noResults: "No results",
   },
   auth: {
     login: "Log in",
@@ -44,6 +46,8 @@ export const en = {
     stickers: "stickers",
     sectionNotFound: "Section not found",
     noStickersInCategory: "No stickers in this category",
+    goToSection: "Go to team",
+    searchSection: "Search team...",
     addDuplicate: "Add duplicate",
     have: "Have",
     need: "Need",
