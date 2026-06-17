@@ -14,9 +14,9 @@ export function MobileNav() {
   ];
 
   return (
-    <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-30 px-3 pb-[max(0.375rem,env(safe-area-inset-bottom))]">
-      <div className="liquid-glass rounded-2xl mx-auto max-w-md">
-        <div className="flex items-center justify-around px-1 py-1.5">
+    <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-30 px-3 pb-[max(0.25rem,env(safe-area-inset-bottom))]">
+      <div className="liquid-glass rounded-2xl mx-auto max-w-sm">
+        <div className="flex items-center justify-around px-1 py-1">
           {NAV_ITEMS.map(({ to, label, Icon, match }) => (
             <NavLink
               key={to}
@@ -24,7 +24,7 @@ export function MobileNav() {
               className={({ isActive }) => {
                 const active = isActive || (match && location.pathname.startsWith(match));
                 return cn(
-                  "relative flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl transition-all duration-300 min-w-[60px]",
+                  "flex flex-col items-center py-1 px-3 rounded-xl transition-all duration-200",
                   active
                     ? "text-brand-700 dark:text-brand-300"
                     : "text-slate-500 dark:text-slate-400 active:scale-90"
@@ -36,14 +36,14 @@ export function MobileNav() {
                 return (
                   <>
                     <div className={cn(
-                      "flex items-center justify-center w-10 h-8 rounded-full transition-all duration-300",
-                      active && "liquid-glass-pill scale-105"
+                      "flex items-center justify-center w-8 h-6 rounded-full transition-all duration-200",
+                      active && "liquid-glass-pill"
                     )}>
-                      <Icon size={18} strokeWidth={active ? 2.2 : 1.5} />
+                      <Icon size={16} strokeWidth={active ? 2.2 : 1.5} />
                     </div>
                     <span className={cn(
-                      "text-[10px] leading-none transition-all duration-300",
-                      active ? "font-bold" : "font-medium opacity-70"
+                      "text-[9px] leading-none mt-px",
+                      active ? "font-bold" : "font-medium opacity-60"
                     )}>
                       {label}
                     </span>

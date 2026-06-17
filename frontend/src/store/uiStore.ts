@@ -11,8 +11,13 @@ interface UIStore {
   setStickerFilter: (filter: "all" | "owned" | "missing" | "duplicate") => void;
 }
 
+const isDesktop = () =>
+  typeof window !== "undefined" && typeof window.matchMedia === "function"
+    ? window.matchMedia("(min-width: 768px)").matches
+    : false;
+
 export const useUIStore = create<UIStore>((set) => ({
-  sidebarOpen: true,
+  sidebarOpen: isDesktop(),
   quickAddOpen: false,
   searchOpen: false,
   stickerFilter: "all",

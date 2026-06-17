@@ -316,7 +316,7 @@ export function QuickAddFAB() {
     <button
       onClick={() => setQuickAddOpen(true)}
       className={cn(
-        "fixed bottom-[84px] right-4 sm:bottom-6 sm:right-6 z-30",
+        "fixed bottom-[72px] right-4 sm:bottom-6 sm:right-6 z-30",
         "bg-brand-600 hover:bg-brand-700 text-white",
         "w-14 h-14 rounded-full shadow-lg",
         "flex items-center justify-center",
