@@ -671,7 +671,7 @@ async function main() {
     },
   });
 
-  const paniniSticker = await prisma.sticker.create({
+  await prisma.sticker.create({
     data: {
       number: stickerNumber++,
       code: "00",
@@ -680,9 +680,6 @@ async function main() {
       isShiny: true,
       sectionId: paniniSection.id,
     },
-  });
-  await prisma.userSticker.create({
-    data: { stickerId: paniniSticker.id, quantity: 0 },
   });
 
   // --- FIFA World Cup section (8 stickers) ---
@@ -696,7 +693,7 @@ async function main() {
   });
 
   for (const s of FWC_STICKERS) {
-    const sticker = await prisma.sticker.create({
+    await prisma.sticker.create({
       data: {
         number: stickerNumber++,
         code: s.code,
@@ -705,9 +702,6 @@ async function main() {
         isShiny: true,
         sectionId: fwcSection.id,
       },
-    });
-    await prisma.userSticker.create({
-      data: { stickerId: sticker.id, quantity: 0 },
     });
   }
 
@@ -731,7 +725,7 @@ async function main() {
     let teamPos = 1;
 
     // 1 — Badge
-    const badge = await prisma.sticker.create({
+    await prisma.sticker.create({
       data: {
         number: stickerNumber++,
         code: `${team.code}-${teamPos++}`,
@@ -741,13 +735,10 @@ async function main() {
         sectionId: section.id,
       },
     });
-    await prisma.userSticker.create({
-      data: { stickerId: badge.id, quantity: 0 },
-    });
 
     // 2-12 — First 11 players
     for (const playerName of firstGroup) {
-      const player = await prisma.sticker.create({
+      await prisma.sticker.create({
         data: {
           number: stickerNumber++,
           code: `${team.code}-${teamPos++}`,
@@ -756,13 +747,10 @@ async function main() {
           sectionId: section.id,
         },
       });
-      await prisma.userSticker.create({
-        data: { stickerId: player.id, quantity: 0 },
-      });
     }
 
     // 13 — Squad photo
-    const squad = await prisma.sticker.create({
+    await prisma.sticker.create({
       data: {
         number: stickerNumber++,
         code: `${team.code}-${teamPos++}`,
@@ -772,13 +760,10 @@ async function main() {
         sectionId: section.id,
       },
     });
-    await prisma.userSticker.create({
-      data: { stickerId: squad.id, quantity: 0 },
-    });
 
     // 14-20 — Last 7 players
     for (const playerName of secondGroup) {
-      const player = await prisma.sticker.create({
+      await prisma.sticker.create({
         data: {
           number: stickerNumber++,
           code: `${team.code}-${teamPos++}`,
@@ -786,9 +771,6 @@ async function main() {
           type: StickerType.PLAYER,
           sectionId: section.id,
         },
-      });
-      await prisma.userSticker.create({
-        data: { stickerId: player.id, quantity: 0 },
       });
     }
   }
@@ -804,7 +786,7 @@ async function main() {
   });
 
   for (const s of COCA_COLA_STICKERS) {
-    const sticker = await prisma.sticker.create({
+    await prisma.sticker.create({
       data: {
         number: stickerNumber++,
         code: s.code,
@@ -813,9 +795,6 @@ async function main() {
         isShiny: true,
         sectionId: ccSection.id,
       },
-    });
-    await prisma.userSticker.create({
-      data: { stickerId: sticker.id, quantity: 0 },
     });
   }
 

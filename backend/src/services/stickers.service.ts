@@ -3,25 +3,38 @@ import { AppError } from "../middleware/errorHandler";
 
 type StatusFilter = "all" | "owned" | "missing" | "duplicate";
 
-export async function getStickers(status: StatusFilter = "all") {
-  const stickers = await db.sticker.findMany({
-    orderBy: { number: "asc" },
-    include: {
-      userSticker: true,
-      section: { select: { code: true, name: true, flagEmoji: true } },
-    },
-  });
-
-  const mapped = stickers.map((s) => ({
+function mapSticker(s: {
+  id: string;
+  number: number;
+  code: string;
+  name: string;
+  type: string;
+  isShiny: boolean;
+  userStickers: { quantity: number }[];
+  section: { code: string; name: string; flagEmoji: string | null };
+}) {
+  return {
     id: s.id,
     number: s.number,
     code: s.code,
     name: s.name,
     type: s.type,
     isShiny: s.isShiny,
-    quantity: s.userSticker?.quantity ?? 0,
+    quantity: s.userStickers[0]?.quantity ?? 0,
     section: s.section,
-  }));
+  };
+}
+
+export async function getStickers(userId: string, status: StatusFilter = "all") {
+  const stickers = await db.sticker.findMany({
+    orderBy: { number: "asc" },
+    include: {
+      userStickers: { where: { userId } },
+      section: { select: { code: true, name: true, flagEmoji: true } },
+    },
+  });
+
+  const mapped = stickers.map(mapSticker);
 
   if (status === "owned") return mapped.filter((s) => s.quantity === 1);
   if (status === "missing") return mapped.filter((s) => s.quantity === 0);
@@ -29,11 +42,11 @@ export async function getStickers(status: StatusFilter = "all") {
   return mapped;
 }
 
-export async function getStickerByNumber(number: number) {
+export async function getStickerByNumber(number: number, userId: string) {
   const sticker = await db.sticker.findUnique({
     where: { number },
     include: {
-      userSticker: true,
+      userStickers: { where: { userId } },
       section: true,
     },
   });
@@ -47,17 +60,16 @@ export async function getStickerByNumber(number: number) {
     name: sticker.name,
     type: sticker.type,
     isShiny: sticker.isShiny,
-    quantity: sticker.userSticker?.quantity ?? 0,
+    quantity: sticker.userStickers[0]?.quantity ?? 0,
     section: sticker.section,
   };
 }
 
 function normalizeQuery(raw: string): string {
-  // Allow "ARG1" or "ARG 1" to match "ARG-1"
   return raw.trim().replace(/^([A-Za-z]+)\s*(\d+)$/, "$1-$2");
 }
 
-export async function searchStickers(query: string) {
+export async function searchStickers(query: string, userId: string) {
   const q = normalizeQuery(query);
   if (!q) return [];
 
@@ -69,48 +81,39 @@ export async function searchStickers(query: string) {
       ],
     },
     include: {
-      userSticker: true,
+      userStickers: { where: { userId } },
       section: { select: { code: true, name: true, flagEmoji: true } },
     },
     orderBy: { code: "asc" },
     take: 15,
   });
 
-  return results.map((s) => ({
-    id: s.id,
-    number: s.number,
-    code: s.code,
-    name: s.name,
-    type: s.type,
-    isShiny: s.isShiny,
-    quantity: s.userSticker?.quantity ?? 0,
-    section: s.section,
-  }));
+  return results.map(mapSticker);
 }
 
-export async function updateQuantity(number: number, quantity: number) {
+export async function updateQuantity(number: number, quantity: number, userId: string) {
   const sticker = await db.sticker.findUnique({ where: { number } });
   if (!sticker) throw new AppError(404, `Sticker #${number} no encontrado`);
 
   return db.userSticker.upsert({
-    where: { stickerId: sticker.id },
+    where: { userId_stickerId: { userId, stickerId: sticker.id } },
     update: { quantity },
-    create: { stickerId: sticker.id, quantity },
+    create: { userId, stickerId: sticker.id, quantity },
   });
 }
 
-export async function bulkCollect(numbers: number[]) {
+export async function bulkCollect(numbers: number[], userId: string) {
   const stickers = await db.sticker.findMany({
     where: { number: { in: numbers } },
-    include: { userSticker: true },
+    include: { userStickers: { where: { userId } } },
   });
 
   const updates = await Promise.all(
     stickers.map((sticker) =>
       db.userSticker.upsert({
-        where: { stickerId: sticker.id },
+        where: { userId_stickerId: { userId, stickerId: sticker.id } },
         update: { quantity: { increment: 1 } },
-        create: { stickerId: sticker.id, quantity: 1 },
+        create: { userId, stickerId: sticker.id, quantity: 1 },
       })
     )
   );
@@ -121,18 +124,18 @@ export async function bulkCollect(numbers: number[]) {
   };
 }
 
-export async function bulkCollectByCodes(codes: string[]) {
+export async function bulkCollectByCodes(codes: string[], userId: string) {
   const stickers = await db.sticker.findMany({
     where: { code: { in: codes } },
-    include: { userSticker: true },
+    include: { userStickers: { where: { userId } } },
   });
 
   const updates = await Promise.all(
     stickers.map((sticker) =>
       db.userSticker.upsert({
-        where: { stickerId: sticker.id },
+        where: { userId_stickerId: { userId, stickerId: sticker.id } },
         update: { quantity: { increment: 1 } },
-        create: { stickerId: sticker.id, quantity: 1 },
+        create: { userId, stickerId: sticker.id, quantity: 1 },
       })
     )
   );

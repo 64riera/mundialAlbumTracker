@@ -23,6 +23,9 @@ services:
       DATABASE_URL: postgresql://mundial:mundial@db:5432/mundial_album
       PORT: 3001
       NODE_ENV: development
+      JWT_SECRET: dev-jwt-secret-mundial-2026-album-tracker-key
+      JWT_REFRESH_SECRET: dev-jwt-refresh-mundial-2026-album-tracker-key
+      CORS_ORIGIN: http://localhost:5173
     volumes:
       - ./backend/src:/app/src
       - ./backend/prisma:/app/prisma
@@ -31,7 +34,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    command: sh -c "npx prisma migrate dev --name init --skip-seed && npx prisma db seed && npm run dev"
+    command: sh -c "npx prisma migrate deploy && npx prisma db seed && npm run dev"
 
   frontend:
     build:

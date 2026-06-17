@@ -8,6 +8,18 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id           String        @id @default(cuid())
+  email        String        @unique
+  passwordHash String
+  firstName    String
+  lastName     String
+  phone        String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  userStickers UserSticker[]
+}
+
 model Section {
   id            String      @id @default(cuid())
   code          String      @unique
@@ -27,16 +39,16 @@ enum SectionType {
 }
 
 model Sticker {
-  id          String      @id @default(cuid())
-  number      Int         @unique
-  code        String      @unique
+  id          String        @id @default(cuid())
+  number      Int           @unique
+  code        String        @unique
   name        String
   type        StickerType
-  isShiny     Boolean     @default(false)
+  isShiny     Boolean       @default(false)
   sectionId   String
-  section     Section     @relation(fields: [sectionId], references: [id])
-  userSticker UserSticker?
-  createdAt   DateTime    @default(now())
+  section     Section       @relation(fields: [sectionId], references: [id])
+  userStickers UserSticker[]
+  createdAt   DateTime      @default(now())
 
   @@index([sectionId])
 }
@@ -52,8 +64,13 @@ enum StickerType {
 
 model UserSticker {
   id        String   @id @default(cuid())
-  stickerId String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stickerId String
   sticker   Sticker  @relation(fields: [stickerId], references: [id])
   quantity  Int      @default(0)
   updatedAt DateTime @updatedAt
+
+  @@unique([userId, stickerId])
+  @@index([userId])
 }

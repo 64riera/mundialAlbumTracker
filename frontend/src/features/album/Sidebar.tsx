@@ -8,21 +8,23 @@ import type { SectionSummary } from "@/types";
 
 const CONFEDERATION_ORDER = ["CONMEBOL", "UEFA", "CONCACAF", "CAF", "AFC", "OFC", "PLAYOFF"];
 const CONFEDERATION_LABELS: Record<string, string> = {
-  CONMEBOL: "🌎 CONMEBOL",
-  UEFA: "🇪🇺 UEFA",
-  CONCACAF: "🌍 CONCACAF",
-  CAF: "🌍 CAF",
-  AFC: "🌏 AFC",
-  OFC: "🌊 OFC",
-  PLAYOFF: "🔀 Playoffs",
+  CONMEBOL: "CONMEBOL",
+  UEFA: "UEFA",
+  CONCACAF: "CONCACAF",
+  CAF: "CAF",
+  AFC: "AFC",
+  OFC: "OFC",
+  PLAYOFF: "Playoffs",
 };
 
 function ConfederationGroup({
   confederation,
   sections,
+  onNavigate,
 }: {
   confederation: string;
   sections: SectionSummary[];
+  onNavigate?: () => void;
 }) {
   const [open, setOpen] = useState(confederation === "CONMEBOL");
   const owned = sections.reduce((a, s) => a + s.owned, 0);
@@ -45,6 +47,7 @@ function ConfederationGroup({
             <NavLink
               key={section.code}
               to={`/album/${section.code}`}
+              onClick={onNavigate}
               className={({ isActive }) =>
                 cn(
                   "flex items-center gap-2.5 px-3 py-2 rounded-lg mx-1 transition-colors text-sm",
@@ -81,7 +84,11 @@ function ConfederationGroup({
   );
 }
 
-export function Sidebar() {
+interface SidebarProps {
+  onNavigate?: () => void;
+}
+
+export function Sidebar({ onNavigate }: SidebarProps) {
   const { data: sections = [] } = useSections();
 
   const specialSections = sections.filter(
@@ -100,7 +107,6 @@ export function Sidebar() {
 
   return (
     <nav className="h-full overflow-y-auto py-3 space-y-1">
-      {/* Special sections */}
       <div className="px-3 pb-1">
         <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider px-0 mb-2">
           Álbum
@@ -109,6 +115,7 @@ export function Sidebar() {
           <NavLink
             key={section.code}
             to={`/album/${section.code}`}
+            onClick={onNavigate}
             className={({ isActive }) =>
               cn(
                 "flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors text-sm",
@@ -141,6 +148,7 @@ export function Sidebar() {
               key={conf}
               confederation={conf}
               sections={groupedTeams[conf]}
+              onNavigate={onNavigate}
             />
           ) : null
         )}

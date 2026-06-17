@@ -9,6 +9,8 @@ const config: Config = {
         brand: {
           50: "#f0fdf4",
           100: "#dcfce7",
+          200: "#bbf7d0",
+          300: "#86efac",
           400: "#4ade80",
           500: "#22c55e",
           600: "#16a34a",
@@ -17,10 +19,13 @@ const config: Config = {
           900: "#14532d",
         },
         gold: {
+          50: "#fefce8",
           300: "#fde047",
           400: "#facc15",
           500: "#eab308",
           600: "#ca8a04",
+          700: "#a16207",
+          900: "#713f12",
         },
       },
       borderRadius: {

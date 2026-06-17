@@ -1,9 +1,9 @@
 import { db } from "../lib/db";
 
-export async function getOverview() {
+export async function getOverview(userId: string) {
   const [total, userStickers] = await Promise.all([
     db.sticker.count(),
-    db.userSticker.findMany(),
+    db.userSticker.findMany({ where: { userId } }),
   ]);
 
   const owned = userStickers.filter((s) => s.quantity === 1).length;
@@ -19,12 +19,14 @@ export async function getOverview() {
   };
 }
 
-export async function getBySection() {
+export async function getBySection(userId: string) {
   const sections = await db.section.findMany({
     orderBy: { order: "asc" },
     include: {
       stickers: {
-        include: { userSticker: true },
+        include: {
+          userStickers: { where: { userId } },
+        },
       },
     },
   });
@@ -32,7 +34,7 @@ export async function getBySection() {
   return sections.map((section) => {
     const total = section.stickers.length;
     const owned = section.stickers.filter(
-      (s) => (s.userSticker?.quantity ?? 0) >= 1
+      (s) => (s.userStickers[0]?.quantity ?? 0) >= 1
     ).length;
 
     return {
@@ -48,13 +50,13 @@ export async function getBySection() {
   });
 }
 
-export async function getDuplicates() {
+export async function getDuplicates(userId: string) {
   const stickers = await db.sticker.findMany({
     where: {
-      userSticker: { quantity: { gte: 2 } },
+      userStickers: { some: { userId, quantity: { gte: 2 } } },
     },
     include: {
-      userSticker: true,
+      userStickers: { where: { userId } },
       section: { select: { code: true, name: true, flagEmoji: true } },
     },
     orderBy: { number: "asc" },
@@ -65,7 +67,7 @@ export async function getDuplicates() {
     number: s.number,
     name: s.name,
     type: s.type,
-    quantity: s.userSticker!.quantity,
+    quantity: s.userStickers[0]!.quantity,
     section: s.section,
   }));
 }

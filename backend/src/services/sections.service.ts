@@ -1,12 +1,13 @@
 import { db } from "../lib/db";
 
-export async function getAllSections() {
+export async function getAllSections(userId: string) {
   const sections = await db.section.findMany({
     orderBy: { order: "asc" },
     include: {
-      _count: { select: { stickers: true } },
       stickers: {
-        include: { userSticker: true },
+        include: {
+          userStickers: { where: { userId } },
+        },
       },
     },
   });
@@ -14,7 +15,7 @@ export async function getAllSections() {
   return sections.map((section) => {
     const total = section.stickers.length;
     const owned = section.stickers.filter(
-      (s) => (s.userSticker?.quantity ?? 0) >= 1
+      (s) => (s.userStickers[0]?.quantity ?? 0) >= 1
     ).length;
 
     return {
@@ -32,13 +33,15 @@ export async function getAllSections() {
   });
 }
 
-export async function getSectionByCode(code: string) {
+export async function getSectionByCode(code: string, userId: string) {
   const section = await db.section.findUnique({
     where: { code },
     include: {
       stickers: {
         orderBy: { number: "asc" },
-        include: { userSticker: true },
+        include: {
+          userStickers: { where: { userId } },
+        },
       },
     },
   });
@@ -52,7 +55,7 @@ export async function getSectionByCode(code: string) {
     name: s.name,
     type: s.type,
     isShiny: s.isShiny,
-    quantity: s.userSticker?.quantity ?? 0,
+    quantity: s.userStickers[0]?.quantity ?? 0,
   }));
 
   const total = stickers.length;

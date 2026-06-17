@@ -13,18 +13,17 @@ const searchQuerySchema = z.string().min(1).max(50);
 stickersRouter.get("/", async (req: Request, res: Response, next: NextFunction) => {
   try {
     const status = statusSchema.parse(req.query.status);
-    const stickers = await stickersService.getStickers(status);
+    const stickers = await stickersService.getStickers(req.userId!, status);
     res.json(stickers);
   } catch (err) {
     next(err);
   }
 });
 
-// Must be before /:number to avoid Express matching "search" as a number param
 stickersRouter.get("/search", async (req: Request, res: Response, next: NextFunction) => {
   try {
     const q = searchQuerySchema.parse(req.query.q);
-    const results = await stickersService.searchStickers(q);
+    const results = await stickersService.searchStickers(q, req.userId!);
     res.json(results);
   } catch (err) {
     next(err);
@@ -34,7 +33,7 @@ stickersRouter.get("/search", async (req: Request, res: Response, next: NextFunc
 stickersRouter.get("/:number", async (req: Request, res: Response, next: NextFunction) => {
   try {
     const number = z.coerce.number().int().positive().parse(req.params.number);
-    const sticker = await stickersService.getStickerByNumber(number);
+    const sticker = await stickersService.getStickerByNumber(number, req.userId!);
     res.json(sticker);
   } catch (err) {
     next(err);
@@ -45,7 +44,7 @@ stickersRouter.patch("/:number/collect", async (req: Request, res: Response, nex
   try {
     const number = z.coerce.number().int().positive().parse(req.params.number);
     const { quantity } = collectSchema.parse(req.body);
-    const result = await stickersService.updateQuantity(number, quantity);
+    const result = await stickersService.updateQuantity(number, quantity, req.userId!);
     res.json(result);
   } catch (err) {
     next(err);
@@ -55,7 +54,7 @@ stickersRouter.patch("/:number/collect", async (req: Request, res: Response, nex
 stickersRouter.post("/bulk-collect", async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { numbers } = bulkSchema.parse(req.body);
-    const result = await stickersService.bulkCollect(numbers);
+    const result = await stickersService.bulkCollect(numbers, req.userId!);
     res.json(result);
   } catch (err) {
     next(err);
@@ -65,7 +64,7 @@ stickersRouter.post("/bulk-collect", async (req: Request, res: Response, next: N
 stickersRouter.post("/bulk-collect-codes", async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { codes } = bulkCodesSchema.parse(req.body);
-    const result = await stickersService.bulkCollectByCodes(codes);
+    const result = await stickersService.bulkCollectByCodes(codes, req.userId!);
     res.json(result);
   } catch (err) {
     next(err);
