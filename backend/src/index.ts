@@ -13,6 +13,9 @@ import { stickersRouter } from "./routes/stickers.router";
 import { statsRouter } from "./routes/stats.router";
 import { ocrRouter } from "./routes/ocr.router";
 import { matchesRouter } from "./routes/matches.router";
+import { notificationsRouter } from "./routes/notifications.router";
+import { initWebPush } from "./services/notification.service";
+import { startMatchMonitor, stopMatchMonitor } from "./services/matchMonitor.service";
 
 const app = express();
 
@@ -41,15 +44,20 @@ app.use("/api/stickers", requireAuth, stickersRouter);
 app.use("/api/stats", requireAuth, statsRouter);
 app.use("/api/ocr", requireAuth, ocrRouter);
 app.use("/api/matches", requireAuth, matchesRouter);
+app.use("/api/notifications", requireAuth, notificationsRouter);
 
 app.use(errorHandler);
 
 const server = app.listen(env.PORT, () => {
   console.log(`Server running on port ${env.PORT} [${env.NODE_ENV}]`);
+
+  initWebPush();
+  startMatchMonitor();
 });
 
 function shutdown() {
   console.log("Shutting down gracefully…");
+  stopMatchMonitor();
   server.close(async () => {
     await db.$disconnect();
     process.exit(0);

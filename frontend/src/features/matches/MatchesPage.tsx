@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { Calendar, Trophy, Users, ChevronLeft, ChevronRight } from "lucide-react";
 import { MatchCard } from "./MatchCard";
 import { GroupStandingsView } from "./GroupStandings";
+import { NotificationSettings } from "./NotificationSettings";
 import type { Match } from "@/types";
 
 type Tab = "today" | "calendar" | "groups";
@@ -214,7 +215,9 @@ export function MatchesPage() {
         </p>
       </div>
 
-      <div className="flex gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl mb-5">
+      <NotificationSettings />
+
+      <div className="flex gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl mb-5 mt-4">
         {TABS.map(({ key, label, Icon }) => (
           <button
             key={key}

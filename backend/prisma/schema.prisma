@@ -9,15 +9,40 @@ datasource db {
 }
 
 model User {
-  id           String        @id @default(cuid())
-  email        String        @unique
-  passwordHash String
-  firstName    String
-  lastName     String
-  phone        String
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  userStickers UserSticker[]
+  id                     String                  @id @default(cuid())
+  email                  String                  @unique
+  passwordHash           String
+  firstName              String
+  lastName               String
+  phone                  String
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
+  userStickers           UserSticker[]
+  pushSubscriptions      PushSubscription[]
+  notificationPreference NotificationPreference?
+}
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model NotificationPreference {
+  id         String  @id @default(cuid())
+  userId     String  @unique
+  matchStart Boolean @default(true)
+  goals      Boolean @default(true)
+  lang       String  @default("es")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Section {

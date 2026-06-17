@@ -157,6 +157,14 @@ export const es = {
     myDuplicates: "mis sobrantes",
     theyHave: "tiene",
   },
+  notifications: {
+    title: "Notificaciones de partidos",
+    enable: "Activar",
+    disable: "Desactivar",
+    denied: "Permisos de notificacion bloqueados. Activalos en los ajustes de tu navegador.",
+    matchStart: "Inicio de partido",
+    goals: "Goles",
+  },
   pwa: {
     install: "Instalar app",
     offline: "Sin conexion",

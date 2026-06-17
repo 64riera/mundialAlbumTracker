@@ -157,6 +157,14 @@ export const en = {
     myDuplicates: "my extras",
     theyHave: "has",
   },
+  notifications: {
+    title: "Match notifications",
+    enable: "Enable",
+    disable: "Disable",
+    denied: "Notification permission blocked. Enable it in your browser settings.",
+    matchStart: "Match kickoff",
+    goals: "Goals",
+  },
   pwa: {
     install: "Install app",
     offline: "Offline",

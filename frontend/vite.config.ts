@@ -7,8 +7,11 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
+      strategies: "injectManifest",
+      srcDir: "src",
+      filename: "sw.ts",
       registerType: "autoUpdate",
-      includeAssets: ["pwa-icon.svg", "trophy.svg"],
+      includeAssets: ["pwa-icon.svg"],
       manifest: {
         name: "Mundial 2026 - Album Panini Tracker",
         short_name: "Mundial 2026",
@@ -40,36 +43,8 @@ export default defineConfig({
           },
         ],
       },
-      workbox: {
+      injectManifest: {
         globPatterns: ["**/*.{js,css,html,svg,png,woff2}"],
-        runtimeCaching: [
-          {
-            urlPattern: /\/api\/(sections|stickers|stats)/,
-            handler: "NetworkFirst",
-            options: {
-              cacheName: "api-data",
-              expiration: {
-                maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24,
-              },
-              cacheableResponse: { statuses: [0, 200] },
-              networkTimeoutSeconds: 5,
-            },
-          },
-          {
-            urlPattern: /\/api\/matches/,
-            handler: "NetworkFirst",
-            options: {
-              cacheName: "api-matches",
-              expiration: {
-                maxEntries: 20,
-                maxAgeSeconds: 60 * 60,
-              },
-              cacheableResponse: { statuses: [0, 200] },
-              networkTimeoutSeconds: 5,
-            },
-          },
-        ],
       },
     }),
   ],
