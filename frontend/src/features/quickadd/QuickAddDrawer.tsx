@@ -53,7 +53,7 @@ export function QuickAddDrawer() {
         setRecent((prev) => [codes.join(", "), ...prev].slice(0, 5));
         setSelected([]);
         showToast(
-          `✓ ${data.updated} figurita${data.updated !== 1 ? "s" : ""} agregada${data.updated !== 1 ? "s" : ""}`
+          `${data.updated} figurita${data.updated !== 1 ? "s" : ""} agregada${data.updated !== 1 ? "s" : ""}`
         );
       },
     });
@@ -77,7 +77,6 @@ export function QuickAddDrawer() {
     }
   };
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (
@@ -93,7 +92,6 @@ export function QuickAddDrawer() {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  // Reset state when drawer closes
   useEffect(() => {
     if (!quickAddOpen) {
       setQuery("");
@@ -120,19 +118,21 @@ export function QuickAddDrawer() {
             className="fixed right-0 top-0 h-full w-full max-w-sm bg-white dark:bg-slate-900 shadow-2xl z-50 flex flex-col"
           >
             <div className="flex items-center justify-between p-5 border-b border-slate-100 dark:border-slate-700">
-              <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100">
-                ➕ Agregar figuritas
-              </h2>
+              <div className="flex items-center gap-2">
+                <Plus size={20} className="text-brand-600" />
+                <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100">
+                  Agregar figuritas
+                </h2>
+              </div>
               <button
                 onClick={() => setQuickAddOpen(false)}
-                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors p-1"
               >
                 <X size={20} />
               </button>
             </div>
 
             <div className="p-5 space-y-4 flex-1 overflow-y-auto">
-              {/* Selected chips */}
               {selected.length > 0 && (
                 <div className="flex flex-wrap gap-1.5">
                   {selected.map((s) => (
@@ -156,14 +156,13 @@ export function QuickAddDrawer() {
                 </div>
               )}
 
-              {/* Search input with autocomplete */}
               <div>
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">
-                  Buscar por código o nombre
+                  Buscar por codigo o nombre
                 </label>
                 <p className="text-xs text-slate-400 dark:text-slate-500 mb-2">
                   Ej: <span className="font-mono">ARG15</span>,{" "}
-                  <span className="font-mono">ESP</span>, Messi, Mbappé...
+                  <span className="font-mono">ESP</span>, Messi, Mbappe...
                 </p>
 
                 <div className="relative">
@@ -193,7 +192,6 @@ export function QuickAddDrawer() {
                     />
                   </div>
 
-                  {/* Dropdown results */}
                   <AnimatePresence>
                     {dropdownOpen && debouncedQuery.trim() && (
                       <motion.div
@@ -251,7 +249,7 @@ export function QuickAddDrawer() {
                                       <span className="text-[10px] text-emerald-600 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded-full shrink-0">
                                         {sticker.quantity === 1
                                           ? "tengo"
-                                          : `×${sticker.quantity}`}
+                                          : `x${sticker.quantity}`}
                                       </span>
                                     ) : null}
                                   </button>
@@ -261,7 +259,7 @@ export function QuickAddDrawer() {
                           </ul>
                         ) : (
                           <p className="px-4 py-3 text-sm text-slate-400 dark:text-slate-500 text-center">
-                            Sin resultados para &ldquo;{debouncedQuery}&rdquo;
+                            Sin resultados para "{debouncedQuery}"
                           </p>
                         )}
                       </motion.div>
@@ -270,7 +268,6 @@ export function QuickAddDrawer() {
                 </div>
               </div>
 
-              {/* Submit button */}
               <button
                 onClick={handleAdd}
                 disabled={selected.length === 0 || bulkCollect.isPending}
@@ -287,11 +284,10 @@ export function QuickAddDrawer() {
                     : "Selecciona figuritas para agregar"}
               </button>
 
-              {/* Recent history */}
               {recent.length > 0 && (
                 <div>
                   <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-2">
-                    Últimas agregadas
+                    Ultimas agregadas
                   </p>
                   <div className="space-y-1">
                     {recent.map((entry, i) => (
@@ -320,7 +316,7 @@ export function QuickAddFAB() {
     <button
       onClick={() => setQuickAddOpen(true)}
       className={cn(
-        "fixed bottom-6 right-6 z-30",
+        "fixed bottom-20 right-4 sm:bottom-6 sm:right-6 z-30",
         "bg-brand-600 hover:bg-brand-700 text-white",
         "w-14 h-14 rounded-full shadow-lg",
         "flex items-center justify-center",

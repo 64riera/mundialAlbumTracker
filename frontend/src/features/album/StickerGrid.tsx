@@ -1,4 +1,5 @@
 import { StickerCard } from "./StickerCard";
+import { Search } from "lucide-react";
 import type { StickerSummary } from "@/types";
 
 interface StickerGridProps {
@@ -19,14 +20,14 @@ export function StickerGrid({ stickers, filter, onToggle, onIncrement }: Sticker
   if (filtered.length === 0) {
     return (
       <div className="text-center py-16 text-slate-400 dark:text-slate-500">
-        <div className="text-4xl mb-2">🔍</div>
-        <p className="text-sm">Sin figuritas en esta categoría</p>
+        <Search size={32} className="mx-auto mb-3 opacity-50" />
+        <p className="text-sm">Sin figuritas en esta categoria</p>
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-3">
+    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-2 sm:gap-3">
       {filtered.map((sticker) => (
         <StickerCard
           key={sticker.id}

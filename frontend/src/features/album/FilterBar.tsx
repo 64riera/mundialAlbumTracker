@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { LayoutGrid, CheckCircle, XCircle, Copy } from "lucide-react";
 import type { StickerSummary } from "@/types";
 
 type Filter = "all" | "owned" | "missing" | "duplicate";
@@ -9,11 +10,11 @@ interface FilterBarProps {
   onChange: (f: Filter) => void;
 }
 
-const FILTERS: { key: Filter; label: string; emoji: string }[] = [
-  { key: "all", label: "Todas", emoji: "📋" },
-  { key: "owned", label: "Tengo", emoji: "✅" },
-  { key: "missing", label: "Faltan", emoji: "❌" },
-  { key: "duplicate", label: "Duplicadas", emoji: "🔄" },
+const FILTERS: { key: Filter; label: string; Icon: typeof LayoutGrid }[] = [
+  { key: "all", label: "Todas", Icon: LayoutGrid },
+  { key: "owned", label: "Tengo", Icon: CheckCircle },
+  { key: "missing", label: "Faltan", Icon: XCircle },
+  { key: "duplicate", label: "Duplicadas", Icon: Copy },
 ];
 
 export function FilterBar({ stickers, active, onChange }: FilterBarProps) {
@@ -25,19 +26,19 @@ export function FilterBar({ stickers, active, onChange }: FilterBarProps) {
   };
 
   return (
-    <div className="flex gap-2 flex-wrap">
-      {FILTERS.map(({ key, label, emoji }) => (
+    <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-none">
+      {FILTERS.map(({ key, label, Icon }) => (
         <button
           key={key}
           onClick={() => onChange(key)}
           className={cn(
-            "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all",
+            "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all whitespace-nowrap",
             active === key
               ? "bg-brand-600 text-white shadow-sm"
               : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-brand-300 hover:text-brand-700 dark:hover:text-brand-400"
           )}
         >
-          <span>{emoji}</span>
+          <Icon size={14} />
           <span>{label}</span>
           <span
             className={cn(

@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import type { StickerSummary } from "@/types";
-import { Star } from "lucide-react";
+import { Star, User, Shield, Landmark, Users, Sparkles, BookOpen, Pin, Plus } from "lucide-react";
 
 interface StickerCardProps {
   sticker: StickerSummary;
@@ -9,39 +9,38 @@ interface StickerCardProps {
   onIncrement?: (sticker: StickerSummary) => void;
 }
 
+const TYPE_ICONS: Record<string, typeof User> = {
+  PLAYER: User,
+  BADGE: Shield,
+  STADIUM: Landmark,
+  SPECIAL: Sparkles,
+  INTRO: BookOpen,
+  GROUP: Users,
+};
+
 export function StickerCard({ sticker, onToggle, onIncrement }: StickerCardProps) {
   const isOwned = sticker.quantity >= 1;
   const isDuplicate = sticker.quantity >= 2;
-
-  const cardStyles = cn(
-    "relative rounded-xl border-2 p-3 cursor-pointer select-none",
-    "transition-colors duration-200",
-    isDuplicate
-      ? "bg-amber-50 dark:bg-amber-950/40 border-amber-400 dark:border-amber-600"
-      : isOwned
-        ? "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-400 dark:border-emerald-600"
-        : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 opacity-60 hover:opacity-80"
-  );
-
-  const typeIcon: Record<string, string> = {
-    PLAYER: "👤",
-    BADGE: "🛡️",
-    STADIUM: "🏟️",
-    SPECIAL: "⭐",
-    INTRO: "📖",
-    GROUP: "👥",
-  };
+  const Icon = TYPE_ICONS[sticker.type] ?? Pin;
 
   return (
     <motion.div
-      className={cardStyles}
+      className={cn(
+        "relative rounded-xl border-2 p-2.5 sm:p-3 cursor-pointer select-none",
+        "transition-colors duration-200",
+        isDuplicate
+          ? "bg-amber-50 dark:bg-amber-950/40 border-amber-400 dark:border-amber-600"
+          : isOwned
+            ? "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-400 dark:border-emerald-600"
+            : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 opacity-60 hover:opacity-80"
+      )}
       whileTap={{ scale: 0.93 }}
       onClick={() => onToggle(sticker)}
       title={sticker.name}
     >
       {isDuplicate && (
         <span className="absolute -top-2 -right-2 bg-amber-400 dark:bg-amber-500 text-amber-900 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow">
-          ×{sticker.quantity}
+          x{sticker.quantity}
         </span>
       )}
 
@@ -51,13 +50,25 @@ export function StickerCard({ sticker, onToggle, onIncrement }: StickerCardProps
 
       <div className="text-center">
         <p className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">{sticker.code}</p>
-        <div className="text-2xl my-1">{typeIcon[sticker.type] ?? "📌"}</div>
+        <div className="my-1 flex justify-center">
+          <Icon
+            size={24}
+            className={cn(
+              isDuplicate
+                ? "text-amber-500 dark:text-amber-400"
+                : isOwned
+                  ? "text-emerald-500 dark:text-emerald-400"
+                  : "text-slate-300 dark:text-slate-600"
+            )}
+            strokeWidth={1.5}
+          />
+        </div>
         <p className="text-[11px] font-medium text-slate-700 dark:text-slate-200 leading-tight line-clamp-2">
           {sticker.name}
         </p>
       </div>
 
-      <div className="mt-2 flex items-center justify-between">
+      <div className="mt-1.5 sm:mt-2 flex items-center justify-between">
         <span
           className={cn(
             "text-[10px] font-semibold px-1.5 py-0.5 rounded-full",
@@ -74,10 +85,10 @@ export function StickerCard({ sticker, onToggle, onIncrement }: StickerCardProps
         {isOwned && onIncrement && (
           <button
             onClick={(e) => { e.stopPropagation(); onIncrement(sticker); }}
-            className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-sm font-bold w-5 h-5 flex items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+            className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 w-6 h-6 flex items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
             title="Agregar duplicada"
           >
-            +
+            <Plus size={14} strokeWidth={2.5} />
           </button>
         )}
       </div>

@@ -6,6 +6,7 @@ import { StatsView } from "@/features/stats/StatsView";
 import { DuplicatesView } from "@/features/duplicates/DuplicatesView";
 import { QuickAddDrawer, QuickAddFAB } from "@/features/quickadd/QuickAddDrawer";
 import { ToastContainer } from "@/components/ui/Toast";
+import { MobileNav } from "@/components/MobileNav";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { LoginPage } from "@/features/auth/LoginPage";
 import { RegisterPage } from "@/features/auth/RegisterPage";
@@ -43,7 +44,7 @@ function AppShell() {
           <Sidebar onNavigate={() => setSidebarOpen(false)} />
         </aside>
 
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto pb-14 sm:pb-0">
           <Routes>
             <Route path="/" element={<Navigate to="/album/INTRO" replace />} />
             <Route path="/album/:sectionCode" element={<AlbumView />} />
@@ -54,6 +55,7 @@ function AppShell() {
         </main>
       </div>
 
+      <MobileNav />
       <QuickAddDrawer />
       <QuickAddFAB />
       <ToastContainer />

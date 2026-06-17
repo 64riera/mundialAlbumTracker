@@ -1,5 +1,6 @@
 import { useOverviewStats, useSectionStats } from "@/hooks/useStats";
 import { ProgressBar } from "@/components/ui/ProgressBar";
+import { BarChart3, Package, CheckCircle, XCircle, Copy, Trophy, Target } from "lucide-react";
 import {
   PieChart,
   Pie,
@@ -29,7 +30,7 @@ export function StatsView() {
 
   if (loadingOverview || loadingSections) {
     return (
-      <div className="p-6 space-y-4">
+      <div className="p-4 sm:p-6 space-y-4">
         {Array.from({ length: 4 }).map((_, i) => (
           <div key={i} className="h-24 bg-slate-200 dark:bg-slate-700 rounded-xl animate-pulse" />
         ))}
@@ -65,19 +66,25 @@ export function StatsView() {
   const complete = teamsSorted.filter((s) => s.percentage === 100);
   const almostComplete = teamsSorted.filter((s) => s.percentage > 0 && s.percentage < 100).slice(0, 5);
 
+  const OVERVIEW_CARDS = [
+    { label: "Total", value: overview.total, Icon: Package, color: "text-slate-700 dark:text-slate-200" },
+    { label: "Tengo", value: overview.owned, Icon: CheckCircle, color: "text-brand-600" },
+    { label: "Faltan", value: overview.missing, Icon: XCircle, color: "text-red-500" },
+    { label: "Duplicadas", value: overview.duplicate, Icon: Copy, color: "text-amber-500" },
+  ];
+
   return (
     <div className="p-4 md:p-6 space-y-6">
-      <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">📊 Estadísticas</h1>
+      <div className="flex items-center gap-2.5">
+        <BarChart3 size={24} className="text-brand-600" />
+        <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Estadisticas</h1>
+      </div>
 
       {/* Overview cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        {[
-          { label: "Total", value: overview.total, color: "text-slate-700" },
-          { label: "Tengo", value: overview.owned, color: "text-brand-600" },
-          { label: "Faltan", value: overview.missing, color: "text-red-500" },
-          { label: "Duplicadas", value: overview.duplicate, color: "text-amber-500" },
-        ].map(({ label, value, color }) => (
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+        {OVERVIEW_CARDS.map(({ label, value, Icon, color }) => (
           <div key={label} className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4 text-center">
+            <Icon size={20} className={`mx-auto mb-2 ${color}`} strokeWidth={1.5} />
             <p className={`text-3xl font-bold ${color}`}>{value}</p>
             <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{label}</p>
           </div>
@@ -95,7 +102,7 @@ export function StatsView() {
       {/* Charts row */}
       <div className="grid md:grid-cols-2 gap-4">
         <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
-          <p className="font-semibold text-slate-700 dark:text-slate-200 mb-4">Distribución</p>
+          <p className="font-semibold text-slate-700 dark:text-slate-200 mb-4">Distribucion</p>
           <ResponsiveContainer width="100%" height={200}>
             <PieChart>
               <Pie data={pieData} cx="50%" cy="50%" innerRadius={55} outerRadius={85} dataKey="value">
@@ -117,7 +124,7 @@ export function StatsView() {
         </div>
 
         <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
-          <p className="font-semibold text-slate-700 dark:text-slate-200 mb-4">Por confederación</p>
+          <p className="font-semibold text-slate-700 dark:text-slate-200 mb-4">Por confederacion</p>
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={confData} layout="vertical">
               <XAxis type="number" domain={[0, 100]} unit="%" tick={{ fontSize: 11 }} />
@@ -136,13 +143,16 @@ export function StatsView() {
       {/* Complete teams */}
       {complete.length > 0 && (
         <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
-          <p className="font-semibold text-slate-700 dark:text-slate-200 mb-3">🏆 Equipos completos ({complete.length})</p>
+          <div className="flex items-center gap-2 mb-3">
+            <Trophy size={18} className="text-gold-500" />
+            <p className="font-semibold text-slate-700 dark:text-slate-200">Equipos completos ({complete.length})</p>
+          </div>
           <div className="flex flex-wrap gap-2">
             {complete.map((s) => (
               <div key={s.code} className="flex items-center gap-1.5 bg-gold-50 dark:bg-gold-900/30 border border-gold-300 dark:border-gold-600 rounded-full px-3 py-1">
                 <span>{s.flagEmoji}</span>
                 <span className="text-sm font-medium text-gold-700 dark:text-gold-300">{s.name}</span>
-                <span className="text-gold-500 text-xs">✓</span>
+                <CheckCircle size={12} className="text-gold-500" />
               </div>
             ))}
           </div>
@@ -151,7 +161,10 @@ export function StatsView() {
 
       {/* Almost complete */}
       <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
-        <p className="font-semibold text-slate-700 dark:text-slate-200 mb-3">🎯 Casi completos</p>
+        <div className="flex items-center gap-2 mb-3">
+          <Target size={18} className="text-brand-600" />
+          <p className="font-semibold text-slate-700 dark:text-slate-200">Casi completos</p>
+        </div>
         <div className="space-y-3">
           {almostComplete.map((s) => (
             <div key={s.code} className="flex items-center gap-3">
