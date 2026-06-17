@@ -1,4 +1,6 @@
 import { z } from "zod";
+import { env } from "../lib/env";
+import { AppError } from "../middleware/errorHandler";
 
 const FOOTBALL_API_BASE = "https://api.football-data.org/v4";
 const COMPETITION_CODE = "WC";
@@ -83,9 +85,10 @@ export interface GroupStanding {
 // --- Helpers ---
 
 function getApiKey(): string {
-  const key = process.env.FOOTBALL_API_KEY;
-  if (!key) throw new Error("FOOTBALL_API_KEY not configured");
-  return key;
+  if (!env.FOOTBALL_API_KEY) {
+    throw new AppError(503, "FOOTBALL_API_KEY not configured");
+  }
+  return env.FOOTBALL_API_KEY;
 }
 
 function isCacheValid<T>(cache: CacheEntry<T> | null): cache is CacheEntry<T> {
@@ -105,7 +108,7 @@ async function apiFetch<T>(path: string): Promise<T> {
 
   if (!res.ok) {
     const body = await res.text().catch(() => "");
-    throw new Error(`Football API ${res.status}: ${body}`);
+    throw new AppError(502, `Football API ${res.status}: ${body}`);
   }
 
   return res.json() as Promise<T>;
