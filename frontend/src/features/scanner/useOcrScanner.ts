@@ -49,17 +49,10 @@ export function useOcrScanner() {
     try {
       const vw = video.videoWidth;
       const vh = video.videoHeight;
-
-      // Crop to crosshair region (matches overlay: 70% width, 50% height, centered)
-      const cropW = Math.round(vw * 0.7);
-      const cropH = Math.round(vh * 0.5);
-      const cropX = Math.round((vw - cropW) / 2);
-      const cropY = Math.round((vh - cropH) / 2);
-
-      canvas.width = cropW;
-      canvas.height = cropH;
+      canvas.width = vw;
+      canvas.height = vh;
       const ctx = canvas.getContext("2d")!;
-      ctx.drawImage(video, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
+      ctx.drawImage(video, 0, 0, vw, vh);
       const dataUrl = canvas.toDataURL("image/jpeg", 0.95);
 
       const { data } = await api.post<{ rawText: string; codes: string[] }>("/api/ocr/recognize", { image: dataUrl });

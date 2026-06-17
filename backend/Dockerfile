@@ -1,6 +1,22 @@
-FROM node:20-alpine AS base
+FROM node:20-slim AS system-deps
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    openssl \
+    tesseract-ocr \
+    tesseract-ocr-eng \
+    python3 \
+    python3-pip \
+    wget \
+    && wget -q https://github.com/tesseract-ocr/tessdata_best/raw/main/eng.traineddata \
+       -O /usr/share/tesseract-ocr/5/tessdata/eng.traineddata \
+    && apt-get remove -y wget \
+    && apt-get autoremove -y \
+    && rm -rf /var/lib/apt/lists/*
+RUN pip3 install --break-system-packages --no-cache-dir rapidocr-onnxruntime && \
+    pip3 install --break-system-packages --no-cache-dir --force-reinstall opencv-python-headless && \
+    pip3 uninstall -y opencv-python 2>/dev/null; true
+
+FROM system-deps AS base
 WORKDIR /app
-RUN apk add --no-cache openssl tesseract-ocr tesseract-ocr-data-eng
 COPY package*.json ./
 RUN npm install
 
@@ -14,15 +30,12 @@ FROM base AS builder
 COPY . .
 RUN npx prisma generate && npm run build
 
-FROM node:20-alpine AS prod
+FROM system-deps AS prod
 WORKDIR /app
-RUN apk add --no-cache openssl tesseract-ocr tesseract-ocr-data-eng
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/scripts ./scripts
 COPY package*.json ./
-
-USER node
 EXPOSE 3001
-HEALTHCHECK --interval=30s --timeout=5s --retries=3 CMD wget -qO- http://localhost:3001/health || exit 1
 CMD ["node", "dist/index.js"]
