@@ -1,20 +1,26 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { useSections } from "@/hooks/useSections";
-import { ProgressBar } from "@/components/ui/ProgressBar";
+import { useOverviewStats } from "@/hooks/useStats";
 import { cn } from "@/lib/utils";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight, BookOpen, Sparkles, Trophy } from "lucide-react";
 import type { SectionSummary } from "@/types";
 
 const CONFEDERATION_ORDER = ["CONMEBOL", "UEFA", "CONCACAF", "CAF", "AFC", "OFC", "PLAYOFF"];
-const CONFEDERATION_LABELS: Record<string, string> = {
-  CONMEBOL: "CONMEBOL",
-  UEFA: "UEFA",
-  CONCACAF: "CONCACAF",
-  CAF: "CAF",
-  AFC: "AFC",
-  OFC: "OFC",
-  PLAYOFF: "Playoffs",
+const CONFEDERATION_META: Record<string, { label: string; color: string }> = {
+  CONMEBOL: { label: "CONMEBOL", color: "bg-emerald-500" },
+  UEFA: { label: "UEFA", color: "bg-blue-500" },
+  CONCACAF: { label: "CONCACAF", color: "bg-amber-500" },
+  CAF: { label: "CAF", color: "bg-red-500" },
+  AFC: { label: "AFC", color: "bg-violet-500" },
+  OFC: { label: "OFC", color: "bg-cyan-500" },
+  PLAYOFF: { label: "Playoffs", color: "bg-slate-500" },
+};
+
+const SPECIAL_ICONS: Record<string, typeof BookOpen> = {
+  PANINI: BookOpen,
+  FWC: Trophy,
+  CC: Sparkles,
 };
 
 function ConfederationGroup({
@@ -29,58 +35,79 @@ function ConfederationGroup({
   const [open, setOpen] = useState(confederation === "CONMEBOL");
   const owned = sections.reduce((a, s) => a + s.owned, 0);
   const total = sections.reduce((a, s) => a + s.total, 0);
+  const pct = total > 0 ? Math.round((owned / total) * 100) : 0;
+  const meta = CONFEDERATION_META[confederation];
 
   return (
-    <div className="mb-1">
+    <div className="mb-0.5">
       <button
         onClick={() => setOpen((v) => !v)}
-        className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 uppercase tracking-wider transition-colors"
+        className="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-semibold hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors rounded-lg mx-1"
+        style={{ width: "calc(100% - 0.5rem)" }}
       >
-        {open ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
-        <span className="flex-1 text-left">{CONFEDERATION_LABELS[confederation] ?? confederation}</span>
-        <span className="font-normal normal-case">{owned}/{total}</span>
+        <div className={cn("w-1.5 h-1.5 rounded-full shrink-0", meta?.color ?? "bg-slate-400")} />
+        <span className="flex-1 text-left text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+          {meta?.label ?? confederation}
+        </span>
+        <span className="text-[10px] font-medium text-slate-400 dark:text-slate-500 tabular-nums">
+          {pct}%
+        </span>
+        {open ? (
+          <ChevronDown size={12} className="text-slate-400" />
+        ) : (
+          <ChevronRight size={12} className="text-slate-400" />
+        )}
       </button>
 
       {open && (
-        <div className="space-y-0.5">
+        <div className="space-y-px ml-2 mr-1">
           {sections.map((section) => (
-            <NavLink
-              key={section.code}
-              to={`/album/${section.code}`}
-              onClick={onNavigate}
-              className={({ isActive }) =>
-                cn(
-                  "flex items-center gap-2.5 px-3 py-2 rounded-lg mx-1 transition-colors text-sm",
-                  isActive
-                    ? "bg-brand-600 text-white"
-                    : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-slate-100"
-                )
-              }
-            >
-              {({ isActive }) => (
-                <>
-                  <span className="text-base w-6 text-center">{section.flagEmoji ?? "📋"}</span>
-                  <span className="flex-1 truncate">{section.name}</span>
-                  <div className="flex flex-col items-end gap-1 shrink-0">
-                    <span className={cn("text-[10px]", isActive ? "text-brand-200" : "text-slate-400 dark:text-slate-500")}>
-                      {section.percentage}%
-                    </span>
-                    <div className="w-12">
-                      <ProgressBar
-                        value={section.owned}
-                        max={section.total}
-                        size="sm"
-                        className={isActive ? "opacity-70" : ""}
-                      />
-                    </div>
-                  </div>
-                </>
-              )}
-            </NavLink>
+            <TeamLink key={section.code} section={section} onNavigate={onNavigate} />
           ))}
         </div>
       )}
     </div>
+  );
+}
+
+function TeamLink({ section, onNavigate }: { section: SectionSummary; onNavigate?: () => void }) {
+  return (
+    <NavLink
+      to={`/album/${section.code}`}
+      onClick={onNavigate}
+      className={({ isActive }) =>
+        cn(
+          "group flex items-center gap-2.5 px-3 py-1.5 rounded-lg transition-all text-[13px]",
+          isActive
+            ? "bg-brand-600 text-white shadow-sm shadow-brand-600/20"
+            : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+        )
+      }
+    >
+      {({ isActive }) => (
+        <>
+          <span className="text-base w-6 text-center leading-none">{section.flagEmoji ?? ""}</span>
+          <span className="flex-1 truncate font-medium">{section.name}</span>
+          <div className="flex items-center gap-2 shrink-0">
+            <div className="w-10 h-1 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
+              <div
+                className={cn(
+                  "h-full rounded-full transition-all",
+                  isActive ? "bg-white/60" : section.percentage === 100 ? "bg-gold-400" : "bg-brand-400"
+                )}
+                style={{ width: `${section.percentage}%` }}
+              />
+            </div>
+            <span className={cn(
+              "text-[10px] tabular-nums w-7 text-right",
+              isActive ? "text-brand-100" : "text-slate-400 dark:text-slate-500"
+            )}>
+              {section.percentage}%
+            </span>
+          </div>
+        </>
+      )}
+    </NavLink>
   );
 }
 
@@ -90,6 +117,7 @@ interface SidebarProps {
 
 export function Sidebar({ onNavigate }: SidebarProps) {
   const { data: sections = [] } = useSections();
+  const { data: stats } = useOverviewStats();
 
   const specialSections = sections.filter(
     (s) => s.type === "INTRO" || s.type === "SPECIAL"
@@ -105,42 +133,74 @@ export function Sidebar({ onNavigate }: SidebarProps) {
     {} as Record<string, SectionSummary[]>
   );
 
+  const pct = stats?.percentage ?? 0;
+
   return (
-    <nav className="h-full overflow-y-auto py-3 space-y-1">
-      <div className="px-3 pb-1">
-        <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider px-0 mb-2">
-          Álbum
-        </p>
-        {specialSections.map((section) => (
-          <NavLink
-            key={section.code}
-            to={`/album/${section.code}`}
-            onClick={onNavigate}
-            className={({ isActive }) =>
-              cn(
-                "flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors text-sm",
-                isActive
-                  ? "bg-brand-600 text-white"
-                  : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-slate-100"
-              )
-            }
-          >
-            {({ isActive }) => (
-              <>
-                <span className="text-base w-6 text-center">{section.flagEmoji ?? (section.code === "INTRO" ? "📖" : "🏟️")}</span>
-                <span className="flex-1">{section.name}</span>
-                <span className={cn("text-[10px]", isActive ? "text-brand-200" : "text-slate-400 dark:text-slate-500")}>
-                  {section.percentage}%
-                </span>
-              </>
-            )}
-          </NavLink>
-        ))}
+    <nav className="h-full overflow-y-auto flex flex-col">
+      {/* Global progress */}
+      <div className="px-4 pt-4 pb-3">
+        <div className="bg-gradient-to-br from-brand-800 to-brand-900 rounded-xl p-3.5 text-white">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-medium text-brand-200">Mi album</span>
+            <span className="text-lg font-bold">{pct}%</span>
+          </div>
+          <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-brand-400 to-emerald-300 transition-all duration-500"
+              style={{ width: `${pct}%` }}
+            />
+          </div>
+          {stats && (
+            <div className="flex justify-between mt-2 text-[10px] text-brand-300">
+              <span>{stats.owned + stats.duplicate} obtenidas</span>
+              <span>{stats.missing} faltan</span>
+            </div>
+          )}
+        </div>
       </div>
 
-      <div className="border-t border-slate-100 dark:border-slate-700 pt-2">
-        <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider px-4 mb-2">
-          Equipos
+      {/* Special sections */}
+      <div className="px-3 pb-2">
+        <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest px-2 mb-1.5">
+          Secciones
+        </p>
+        {specialSections.map((section) => {
+          const Icon = SPECIAL_ICONS[section.code] ?? BookOpen;
+          return (
+            <NavLink
+              key={section.code}
+              to={`/album/${section.code}`}
+              onClick={onNavigate}
+              className={({ isActive }) =>
+                cn(
+                  "flex items-center gap-2.5 px-3 py-2 rounded-lg transition-all text-[13px]",
+                  isActive
+                    ? "bg-brand-600 text-white shadow-sm shadow-brand-600/20"
+                    : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                )
+              }
+            >
+              {({ isActive }) => (
+                <>
+                  <Icon size={16} className={isActive ? "text-brand-200" : "text-slate-400"} />
+                  <span className="flex-1 font-medium">{section.name}</span>
+                  <span className={cn(
+                    "text-[10px] tabular-nums",
+                    isActive ? "text-brand-100" : "text-slate-400 dark:text-slate-500"
+                  )}>
+                    {section.percentage}%
+                  </span>
+                </>
+              )}
+            </NavLink>
+          );
+        })}
+      </div>
+
+      {/* Teams */}
+      <div className="border-t border-slate-100 dark:border-slate-800 pt-2 flex-1 px-1">
+        <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest px-4 mb-1.5">
+          Selecciones
         </p>
         {CONFEDERATION_ORDER.map((conf) =>
           groupedTeams[conf] ? (
