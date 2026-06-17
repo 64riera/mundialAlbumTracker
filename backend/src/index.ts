@@ -10,6 +10,7 @@ import { authRouter } from "./routes/auth.router";
 import { sectionsRouter } from "./routes/sections.router";
 import { stickersRouter } from "./routes/stickers.router";
 import { statsRouter } from "./routes/stats.router";
+import { ocrRouter } from "./routes/ocr.router";
 
 const app = express();
 
@@ -21,7 +22,7 @@ app.use(
   })
 );
 app.use(cookieParser());
-app.use(express.json({ limit: "16kb" }));
+app.use(express.json({ limit: "10mb" }));
 app.use(generalLimiter);
 
 app.get("/health", (_req, res) => {
@@ -33,6 +34,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/sections", requireAuth, sectionsRouter);
 app.use("/api/stickers", requireAuth, stickersRouter);
 app.use("/api/stats", requireAuth, statsRouter);
+app.use("/api/ocr", requireAuth, ocrRouter);
 
 app.use(errorHandler);
 
