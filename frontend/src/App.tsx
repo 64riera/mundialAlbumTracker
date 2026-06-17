@@ -4,6 +4,7 @@ import { Sidebar } from "@/features/album/Sidebar";
 import { AlbumView } from "@/features/album/AlbumView";
 import { StatsView } from "@/features/stats/StatsView";
 import { DuplicatesView } from "@/features/duplicates/DuplicatesView";
+import { ImportPage } from "@/features/import/ImportPage";
 import { QuickAddDrawer, QuickAddFAB } from "@/features/quickadd/QuickAddDrawer";
 import { ToastContainer } from "@/components/ui/Toast";
 import { MobileNav } from "@/components/MobileNav";
@@ -50,6 +51,7 @@ function AppShell() {
             <Route path="/album/:sectionCode" element={<AlbumView />} />
             <Route path="/stats" element={<StatsView />} />
             <Route path="/duplicates" element={<DuplicatesView />} />
+            <Route path="/import" element={<ImportPage />} />
             <Route path="*" element={<Navigate to="/album/INTRO" replace />} />
           </Routes>
         </main>

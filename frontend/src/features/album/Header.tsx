@@ -5,7 +5,7 @@ import { useUIStore } from "@/store/uiStore";
 import { useAuthStore } from "@/store/authStore";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
-import { Menu, BarChart3, Copy, LogOut, X } from "lucide-react";
+import { Menu, BarChart3, Copy, LogOut, X, QrCode } from "lucide-react";
 
 export function Header() {
   const { data: stats } = useOverviewStats();
@@ -67,6 +67,20 @@ export function Header() {
         >
           <BarChart3 size={16} />
           <span className="hidden sm:block">Estadísticas</span>
+        </NavLink>
+
+        <NavLink
+          to="/import"
+          className={({ isActive }) =>
+            `flex items-center gap-1.5 text-sm px-2 sm:px-3 py-1.5 rounded-lg transition-colors ${
+              isActive
+                ? "bg-brand-700 text-white"
+                : "text-brand-300 hover:text-white hover:bg-brand-800"
+            }`
+          }
+        >
+          <QrCode size={16} />
+          <span className="hidden sm:block">Importar</span>
         </NavLink>
 
         <NavLink

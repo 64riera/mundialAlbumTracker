@@ -61,6 +61,20 @@ stickersRouter.post("/bulk-collect", async (req: Request, res: Response, next: N
   }
 });
 
+const importSchema = z.object({
+  codes: z.array(z.string().min(1)).min(1).max(2000),
+});
+
+stickersRouter.post("/import", async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { codes } = importSchema.parse(req.body);
+    const result = await stickersService.importAlbum(codes, req.userId!);
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+});
+
 stickersRouter.post("/bulk-collect-codes", async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { codes } = bulkCodesSchema.parse(req.body);

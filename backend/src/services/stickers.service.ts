@@ -124,6 +124,29 @@ export async function bulkCollect(numbers: number[], userId: string) {
   };
 }
 
+export async function importAlbum(codes: string[], userId: string) {
+  const stickers = await db.sticker.findMany({
+    where: { code: { in: codes, mode: "insensitive" } },
+  });
+
+  const updates = await Promise.all(
+    stickers.map((sticker) =>
+      db.userSticker.upsert({
+        where: { userId_stickerId: { userId, stickerId: sticker.id } },
+        update: { quantity: { increment: 1 } },
+        create: { userId, stickerId: sticker.id, quantity: 1 },
+      })
+    )
+  );
+
+  return {
+    imported: updates.length,
+    notFound: codes.filter(
+      (c) => !stickers.find((s) => s.code.toLowerCase() === c.toLowerCase())
+    ),
+  };
+}
+
 export async function bulkCollectByCodes(codes: string[], userId: string) {
   const stickers = await db.sticker.findMany({
     where: { code: { in: codes } },

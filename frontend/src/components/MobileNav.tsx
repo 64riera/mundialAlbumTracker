@@ -1,9 +1,10 @@
 import { NavLink } from "react-router-dom";
-import { BookOpen, BarChart3, Copy } from "lucide-react";
+import { BookOpen, BarChart3, Copy, QrCode } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
   { to: "/album/INTRO", label: "Album", Icon: BookOpen, match: "/album" },
+  { to: "/import", label: "Importar", Icon: QrCode, match: "/import" },
   { to: "/stats", label: "Stats", Icon: BarChart3, match: "/stats" },
   { to: "/duplicates", label: "Duplicadas", Icon: Copy, match: "/duplicates" },
 ];
