@@ -31,9 +31,32 @@ export function useOcrScanner() {
     videoRef.current = video;
     if (!canvasRef.current) canvasRef.current = document.createElement("canvas");
 
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: "environment", width: { ideal: 1920 }, height: { ideal: 1080 } },
-    });
+    if (!navigator.mediaDevices?.getUserMedia) {
+      throw new Error("Camera API not available. Requires HTTPS.");
+    }
+
+    const constraintFallbacks: MediaStreamConstraints[] = [
+      { video: { facingMode: "environment", width: { ideal: 1920 }, height: { ideal: 1080 } } },
+      { video: { facingMode: "environment" } },
+      { video: true },
+    ];
+
+    let stream: MediaStream | null = null;
+    for (const constraints of constraintFallbacks) {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia(constraints);
+        break;
+      } catch (err) {
+        if (err instanceof DOMException && (err.name === "NotAllowedError" || err.name === "SecurityError")) {
+          throw err;
+        }
+      }
+    }
+
+    if (!stream) {
+      throw new Error("No compatible camera found");
+    }
+
     video.srcObject = stream;
     await video.play();
     setState((s) => ({ ...s, isCameraReady: true }));

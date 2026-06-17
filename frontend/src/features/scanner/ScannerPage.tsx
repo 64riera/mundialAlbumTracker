@@ -15,7 +15,7 @@ export function ScannerPage() {
   const navigate = useNavigate();
   const videoRef = useRef<HTMLVideoElement>(null);
   const bulkCollect = useBulkCollectByCodes();
-  const [cameraError, setCameraError] = useState(false);
+  const [cameraError, setCameraError] = useState<string | null>(null);
   const [showDebug, setShowDebug] = useState(false);
 
   const {
@@ -23,11 +23,38 @@ export function ScannerPage() {
     startCamera, capture, removeCode, clearAll, cleanup,
   } = useOcrScanner();
 
+  const isSpanish = t.nav.home === "Inicio";
+
+  const initCamera = () => {
+    setCameraError(null);
+    if (!videoRef.current) return;
+    startCamera(videoRef.current).catch((err) => {
+      if (err instanceof DOMException && err.name === "NotAllowedError") {
+        setCameraError(isSpanish
+          ? "Permiso de camara denegado. Activa el permiso en los ajustes de tu navegador e intenta de nuevo."
+          : "Camera permission denied. Enable it in your browser settings and try again.");
+      } else {
+        setCameraError(isSpanish
+          ? "No se pudo acceder a la camara. Verifica que tu dispositivo tiene camara y que ningun otra app la esta usando."
+          : "Could not access camera. Check that your device has a camera and no other app is using it.");
+      }
+    });
+  };
+
   useEffect(() => {
     let cancelled = false;
     if (videoRef.current) {
-      startCamera(videoRef.current).catch(() => {
-        if (!cancelled) setCameraError(true);
+      startCamera(videoRef.current).catch((err) => {
+        if (cancelled) return;
+        if (err instanceof DOMException && err.name === "NotAllowedError") {
+          setCameraError(isSpanish
+            ? "Permiso de camara denegado. Activa el permiso en los ajustes de tu navegador e intenta de nuevo."
+            : "Camera permission denied. Enable it in your browser settings and try again.");
+        } else {
+          setCameraError(isSpanish
+            ? "No se pudo acceder a la camara. Verifica que tu dispositivo tiene camara y que ninguna otra app la esta usando."
+            : "Could not access camera. Check that your device has a camera and no other app is using it.");
+        }
       });
     }
     return () => {
@@ -100,9 +127,15 @@ export function ScannerPage() {
         )}
 
         {cameraError && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/90 text-white">
-            <Camera size={32} className="opacity-40 mb-2" />
-            <p className="text-sm">{t.import.cameraError}</p>
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/90 text-white px-6 text-center">
+            <Camera size={32} className="opacity-40 mb-3" />
+            <p className="text-sm leading-relaxed mb-4">{cameraError}</p>
+            <button
+              onClick={initCamera}
+              className="px-4 py-2 rounded-lg bg-brand-600 hover:bg-brand-700 text-sm font-medium transition-colors"
+            >
+              {isSpanish ? "Reintentar" : "Retry"}
+            </button>
           </div>
         )}
       </div>
