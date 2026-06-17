@@ -14,6 +14,8 @@ import {
   Loader2,
   Camera,
   ArrowLeft,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 
 export function ScannerPage() {
@@ -23,12 +25,14 @@ export function ScannerPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const bulkCollect = useBulkCollectByCodes();
   const [cameraError, setCameraError] = useState(false);
+  const [showDebug, setShowDebug] = useState(false);
 
   const {
     isReady,
     isScanning,
     scannedCodes,
     lastDetected,
+    debugText,
     initWorker,
     startCamera,
     startScanning,
@@ -73,7 +77,6 @@ export function ScannerPage() {
 
   return (
     <div className="p-4 md:p-6 space-y-4 max-w-lg mx-auto">
-      {/* Header */}
       <div className="flex items-center gap-3">
         <button
           onClick={() => { cleanup(); navigate(-1); }}
@@ -81,10 +84,17 @@ export function ScannerPage() {
         >
           <ArrowLeft size={20} />
         </button>
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2.5 flex-1">
           <ScanLine size={22} className="text-brand-600" />
           <h1 className="text-xl font-bold text-slate-800 dark:text-slate-100">{t.scanner.title}</h1>
         </div>
+        <button
+          onClick={() => setShowDebug((v) => !v)}
+          className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1"
+          title="Debug OCR"
+        >
+          {showDebug ? <EyeOff size={18} /> : <Eye size={18} />}
+        </button>
       </div>
 
       <p className="text-sm text-slate-500 dark:text-slate-400">{t.scanner.description}</p>
@@ -97,21 +107,20 @@ export function ScannerPage() {
           muted
           className="w-full h-full object-cover"
         />
-        <canvas ref={canvasRef} className="hidden" />
 
-        {/* Scan region overlay */}
+        {/* Scan region overlay — matches the 35% center crop */}
         {isScanning && (
           <>
-            <div className="absolute inset-0 border-[3px] border-white/20 rounded-2xl pointer-events-none" />
-            <div className="absolute left-4 right-4 top-[35%] bottom-[35%] border-2 border-brand-400/70 rounded-xl pointer-events-none">
-              <div className="absolute inset-0 bg-brand-400/5" />
-              <div className="absolute -top-px left-0 right-0 h-0.5 bg-brand-400 animate-pulse" />
+            <div className="absolute inset-x-0 top-0 h-[32.5%] bg-black/40 pointer-events-none" />
+            <div className="absolute inset-x-0 bottom-0 h-[32.5%] bg-black/40 pointer-events-none" />
+            <div className="absolute left-3 right-3 top-[32.5%] bottom-[32.5%] border-2 border-brand-400 rounded-xl pointer-events-none">
+              <div className="absolute top-0 left-0 right-0 h-0.5 bg-brand-400 animate-[scan_2s_ease-in-out_infinite]" />
             </div>
           </>
         )}
 
         {/* Status badge */}
-        <div className="absolute top-3 left-3">
+        <div className="absolute top-3 left-3 z-10">
           {!isReady ? (
             <span className="flex items-center gap-1.5 bg-black/60 backdrop-blur-sm text-white text-xs px-2.5 py-1 rounded-full">
               <Loader2 size={12} className="animate-spin" />
@@ -127,7 +136,7 @@ export function ScannerPage() {
 
         {/* Last detected flash */}
         {lastDetected && (
-          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-brand-600/90 backdrop-blur-sm text-white text-sm font-bold font-mono px-4 py-1.5 rounded-full animate-bounce">
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-brand-600/90 backdrop-blur-sm text-white text-sm font-bold font-mono px-4 py-1.5 rounded-full animate-bounce z-10">
             {lastDetected}
           </div>
         )}
@@ -139,6 +148,24 @@ export function ScannerPage() {
           </div>
         )}
       </div>
+
+      {/* Debug: processed canvas + OCR text */}
+      {showDebug && (
+        <div className="space-y-2">
+          <canvas
+            ref={canvasRef}
+            className="w-full rounded-lg border border-slate-200 dark:border-slate-700"
+          />
+          <div className="bg-slate-100 dark:bg-slate-800 rounded-lg p-2">
+            <p className="text-[10px] font-mono text-slate-500 dark:text-slate-400 break-all whitespace-pre-wrap">
+              {debugText || "—"}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Hidden canvas when debug is off */}
+      {!showDebug && <canvas ref={canvasRef} className="hidden" />}
 
       {/* Scan / Pause toggle */}
       {isReady && !cameraError && (

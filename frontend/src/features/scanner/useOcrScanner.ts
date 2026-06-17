@@ -7,6 +7,24 @@ interface OcrScannerState {
   isScanning: boolean;
   scannedCodes: string[];
   lastDetected: string | null;
+  debugText: string;
+}
+
+function preprocessFrame(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number
+) {
+  const imageData = ctx.getImageData(0, 0, width, height);
+  const d = imageData.data;
+  for (let i = 0; i < d.length; i += 4) {
+    const gray = d[i] * 0.299 + d[i + 1] * 0.587 + d[i + 2] * 0.114;
+    const val = gray > 140 ? 255 : 0;
+    d[i] = val;
+    d[i + 1] = val;
+    d[i + 2] = val;
+  }
+  ctx.putImageData(imageData, 0, 0);
 }
 
 export function useOcrScanner() {
@@ -15,6 +33,7 @@ export function useOcrScanner() {
     isScanning: false,
     scannedCodes: [],
     lastDetected: null,
+    debugText: "",
   });
 
   const workerRef = useRef<Worker | null>(null);
@@ -22,6 +41,7 @@ export function useOcrScanner() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const intervalRef = useRef<number | null>(null);
   const scannedSetRef = useRef(new Set<string>());
+  const busyRef = useRef(false);
 
   const initWorker = useCallback(async () => {
     const worker = await createWorker("eng", 1, {
@@ -29,8 +49,7 @@ export function useOcrScanner() {
     });
 
     await worker.setParameters({
-      tessedit_char_whitelist: "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-",
-      tessedit_pageseg_mode: "7" as unknown as undefined,
+      tessedit_char_whitelist: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789- ",
     });
 
     workerRef.current = worker;
@@ -46,46 +65,60 @@ export function useOcrScanner() {
     });
     video.srcObject = stream;
     await video.play();
-
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
   }, []);
 
   const captureAndRecognize = useCallback(async () => {
+    if (busyRef.current) return;
     const video = videoRef.current;
     const canvas = canvasRef.current;
     const worker = workerRef.current;
     if (!video || !canvas || !worker || video.readyState < 2) return;
 
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+    busyRef.current = true;
 
-    const cropH = Math.round(canvas.height * 0.3);
-    const cropY = Math.round((canvas.height - cropH) / 2);
-    ctx.drawImage(video, 0, cropY, canvas.width, cropH, 0, 0, canvas.width, cropH);
+    try {
+      const vw = video.videoWidth;
+      const vh = video.videoHeight;
 
-    const { data } = await worker.recognize(canvas, {
-      rectangle: { top: 0, left: 0, width: canvas.width, height: cropH },
-    });
+      const cropH = Math.round(vh * 0.35);
+      const cropY = Math.round((vh - cropH) / 2);
+      const cropW = vw;
 
-    const codes = extractStickerCodes(data.text);
-    if (codes.length === 0) return;
+      canvas.width = cropW;
+      canvas.height = cropH;
 
-    const newCodes = codes.filter((c) => !scannedSetRef.current.has(c));
-    if (newCodes.length === 0) return;
+      const ctx = canvas.getContext("2d", { willReadFrequently: true });
+      if (!ctx) return;
 
-    newCodes.forEach((c) => scannedSetRef.current.add(c));
-    setState((s) => ({
-      ...s,
-      scannedCodes: [...s.scannedCodes, ...newCodes],
-      lastDetected: newCodes[newCodes.length - 1],
-    }));
+      ctx.drawImage(video, 0, cropY, cropW, cropH, 0, 0, cropW, cropH);
+      preprocessFrame(ctx, cropW, cropH);
+
+      const { data } = await worker.recognize(canvas);
+
+      const rawText = data.text.trim();
+      setState((s) => ({ ...s, debugText: rawText }));
+
+      const codes = extractStickerCodes(rawText);
+      if (codes.length === 0) return;
+
+      const newCodes = codes.filter((c) => !scannedSetRef.current.has(c));
+      if (newCodes.length === 0) return;
+
+      newCodes.forEach((c) => scannedSetRef.current.add(c));
+      setState((s) => ({
+        ...s,
+        scannedCodes: [...s.scannedCodes, ...newCodes],
+        lastDetected: newCodes[newCodes.length - 1],
+      }));
+    } finally {
+      busyRef.current = false;
+    }
   }, []);
 
   const startScanning = useCallback(() => {
     if (intervalRef.current) return;
     setState((s) => ({ ...s, isScanning: true }));
-    intervalRef.current = window.setInterval(captureAndRecognize, 1500);
+    intervalRef.current = window.setInterval(captureAndRecognize, 1000);
   }, [captureAndRecognize]);
 
   const stopScanning = useCallback(() => {
@@ -106,7 +139,7 @@ export function useOcrScanner() {
 
   const clearAll = useCallback(() => {
     scannedSetRef.current.clear();
-    setState((s) => ({ ...s, scannedCodes: [], lastDetected: null }));
+    setState((s) => ({ ...s, scannedCodes: [], lastDetected: null, debugText: "" }));
   }, []);
 
   const cleanup = useCallback(() => {

@@ -61,6 +61,11 @@
       0 2px 8px rgba(0, 0, 0, 0.06);
   }
 
+  @keyframes scan {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(calc(100% - 2px)); }
+  }
+
   .dark .liquid-glass-pill {
     background: rgba(255, 255, 255, 0.08);
     border-color: rgba(255, 255, 255, 0.1);
