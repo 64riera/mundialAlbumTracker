@@ -14,9 +14,9 @@ export function MobileNav() {
   ];
 
   return (
-    <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-30">
-      <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-t border-slate-200/60 dark:border-slate-700/60 shadow-[0_-4px_24px_rgba(0,0,0,0.06)] dark:shadow-[0_-4px_24px_rgba(0,0,0,0.3)]">
-        <div className="flex items-center justify-around px-2 pt-1.5 pb-[max(0.375rem,env(safe-area-inset-bottom))]">
+    <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-30 px-3 pb-[max(0.375rem,env(safe-area-inset-bottom))]">
+      <div className="liquid-glass rounded-2xl mx-auto max-w-md">
+        <div className="flex items-center justify-around px-1 py-1.5">
           {NAV_ITEMS.map(({ to, label, Icon, match }) => (
             <NavLink
               key={to}
@@ -24,10 +24,10 @@ export function MobileNav() {
               className={({ isActive }) => {
                 const active = isActive || (match && location.pathname.startsWith(match));
                 return cn(
-                  "relative flex flex-col items-center gap-0.5 py-1.5 px-4 rounded-xl transition-all duration-200 min-w-[64px]",
+                  "relative flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl transition-all duration-300 min-w-[60px]",
                   active
-                    ? "text-brand-600 dark:text-brand-400"
-                    : "text-slate-400 dark:text-slate-500 active:scale-95"
+                    ? "text-brand-700 dark:text-brand-300"
+                    : "text-slate-500 dark:text-slate-400 active:scale-90"
                 );
               }}
             >
@@ -35,18 +35,15 @@ export function MobileNav() {
                 const active = isActive || (match && location.pathname.startsWith(match));
                 return (
                   <>
-                    {active && (
-                      <span className="absolute inset-x-2 top-0 h-[3px] rounded-b-full bg-brand-500" />
-                    )}
                     <div className={cn(
-                      "flex items-center justify-center w-9 h-9 rounded-xl transition-colors duration-200",
-                      active && "bg-brand-50 dark:bg-brand-900/30"
+                      "flex items-center justify-center w-10 h-8 rounded-full transition-all duration-300",
+                      active && "liquid-glass-pill scale-105"
                     )}>
-                      <Icon size={20} strokeWidth={active ? 2 : 1.5} />
+                      <Icon size={18} strokeWidth={active ? 2.2 : 1.5} />
                     </div>
                     <span className={cn(
-                      "text-[10px] leading-none transition-colors duration-200",
-                      active ? "font-semibold" : "font-medium"
+                      "text-[10px] leading-none transition-all duration-300",
+                      active ? "font-bold" : "font-medium opacity-70"
                     )}>
                       {label}
                     </span>
