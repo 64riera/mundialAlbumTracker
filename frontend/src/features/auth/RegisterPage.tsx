@@ -21,7 +21,7 @@ export function RegisterPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     register.mutate(form, {
-      onSuccess: () => navigate("/album/FWC", { replace: true }),
+      onSuccess: () => navigate("/stats", { replace: true }),
     });
   };
 

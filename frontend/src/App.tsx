@@ -36,7 +36,7 @@ function AppShell() {
         <aside
           className={cn(
             "bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700 flex-shrink-0 z-40",
-            "fixed inset-y-0 left-0 w-72 pt-[60px] transition-transform duration-300 md:relative md:pt-0 md:transition-none",
+            "fixed inset-y-0 left-0 w-72 pt-[52px] transition-transform duration-300 md:relative md:pt-0 md:transition-none",
             sidebarOpen
               ? "translate-x-0 md:w-64"
               : "-translate-x-full md:translate-x-0 md:w-0 md:border-r-0"
@@ -47,12 +47,12 @@ function AppShell() {
 
         <main className="flex-1 overflow-y-auto pb-14 sm:pb-0">
           <Routes>
-            <Route path="/" element={<Navigate to="/album/FWC" replace />} />
+            <Route path="/" element={<Navigate to="/stats" replace />} />
             <Route path="/album/:sectionCode" element={<AlbumView />} />
             <Route path="/stats" element={<StatsView />} />
             <Route path="/duplicates" element={<DuplicatesView />} />
             <Route path="/import" element={<ImportPage />} />
-            <Route path="*" element={<Navigate to="/album/FWC" replace />} />
+            <Route path="*" element={<Navigate to="/stats" replace />} />
           </Routes>
         </main>
       </div>

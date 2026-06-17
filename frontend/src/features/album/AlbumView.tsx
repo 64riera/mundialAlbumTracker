@@ -14,7 +14,7 @@ export function AlbumView() {
   const collectSticker = useCollectSticker();
   const { stickerFilter, setStickerFilter } = useUIStore();
 
-  if (!sectionCode) return <Navigate to="/album/FWC" replace />;
+  if (!sectionCode) return <Navigate to="/stats" replace />;
 
   const handleToggle = (sticker: StickerSummary) => {
     const prevQuantity = sticker.quantity;

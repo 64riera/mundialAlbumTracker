@@ -95,7 +95,7 @@ export function ImportPage() {
           `${data.imported} figurita${data.imported !== 1 ? "s" : ""} importada${data.imported !== 1 ? "s" : ""}` +
             (data.notFound.length > 0 ? ` (${data.notFound.length} no encontradas)` : "")
         );
-        navigate("/album/FWC");
+        navigate("/stats");
       },
     });
   };

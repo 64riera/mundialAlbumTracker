@@ -3,9 +3,9 @@ import { BookOpen, BarChart3, Copy, QrCode } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
+  { to: "/stats", label: "Inicio", Icon: BarChart3, match: "/stats" },
   { to: "/album/FWC", label: "Album", Icon: BookOpen, match: "/album" },
   { to: "/import", label: "Importar", Icon: QrCode, match: "/import" },
-  { to: "/stats", label: "Stats", Icon: BarChart3, match: "/stats" },
   { to: "/duplicates", label: "Duplicadas", Icon: Copy, match: "/duplicates" },
 ];
 
@@ -18,7 +18,7 @@ export function MobileNav() {
             key={to}
             to={to}
             className={({ isActive }) => {
-              const active = isActive || (match === "/album" && location.pathname.startsWith("/album"));
+              const active = isActive || (match && location.pathname.startsWith(match));
               return cn(
                 "flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-colors min-w-[60px]",
                 active
