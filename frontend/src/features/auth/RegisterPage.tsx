@@ -3,8 +3,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { useRegister } from "@/hooks/useAuth";
 import { useT } from "@/lib/i18n";
 import { AuthLayout } from "./AuthLayout";
+import { AuthInput } from "./AuthInput";
 import { cn } from "@/lib/utils";
-import { Eye, EyeOff, UserPlus } from "lucide-react";
+import { User, Mail, Phone, Lock, UserPlus } from "lucide-react";
 import type { RegisterInput } from "@/types";
 
 export function RegisterPage() {
@@ -18,7 +19,6 @@ export function RegisterPage() {
     phone: "",
     password: "",
   });
-  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,69 +39,100 @@ export function RegisterPage() {
     <AuthLayout title={t.auth.register} subtitle={t.auth.registerSubtitle}>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">{t.auth.firstName}</label>
-            <input type="text" required value={form.firstName} onChange={(e) => update("firstName", e.target.value)} placeholder="Juan"
-              className={cn("w-full border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2.5 text-sm bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent placeholder:text-slate-400")}
-              autoComplete="given-name" />
-            {fieldErrors?.firstName && <p className="text-xs text-red-500 mt-1">{fieldErrors.firstName[0]}</p>}
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">{t.auth.lastName}</label>
-            <input type="text" required value={form.lastName} onChange={(e) => update("lastName", e.target.value)} placeholder="Perez"
-              className={cn("w-full border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2.5 text-sm bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent placeholder:text-slate-400")}
-              autoComplete="family-name" />
-            {fieldErrors?.lastName && <p className="text-xs text-red-500 mt-1">{fieldErrors.lastName[0]}</p>}
-          </div>
+          <AuthInput
+            label={t.auth.firstName}
+            icon={User}
+            required
+            value={form.firstName}
+            onChange={(v) => update("firstName", v)}
+            placeholder="Juan"
+            autoComplete="given-name"
+            error={fieldErrors?.firstName?.[0]}
+          />
+          <AuthInput
+            label={t.auth.lastName}
+            icon={User}
+            required
+            value={form.lastName}
+            onChange={(v) => update("lastName", v)}
+            placeholder="Perez"
+            autoComplete="family-name"
+            error={fieldErrors?.lastName?.[0]}
+          />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">{t.auth.email}</label>
-          <input type="email" required value={form.email} onChange={(e) => update("email", e.target.value)} placeholder="tu@email.com"
-            className={cn("w-full border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2.5 text-sm bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent placeholder:text-slate-400")}
-            autoComplete="email" />
-          {fieldErrors?.email && <p className="text-xs text-red-500 mt-1">{fieldErrors.email[0]}</p>}
-        </div>
+        <AuthInput
+          label={t.auth.email}
+          icon={Mail}
+          type="email"
+          required
+          value={form.email}
+          onChange={(v) => update("email", v)}
+          placeholder="tu@email.com"
+          autoComplete="email"
+          error={fieldErrors?.email?.[0]}
+        />
 
-        <div>
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">{t.auth.phone}</label>
-          <input type="tel" required value={form.phone} onChange={(e) => update("phone", e.target.value)} placeholder="+51 999 888 777"
-            className={cn("w-full border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2.5 text-sm bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent placeholder:text-slate-400")}
-            autoComplete="tel" />
-          {fieldErrors?.phone && <p className="text-xs text-red-500 mt-1">{fieldErrors.phone[0]}</p>}
-        </div>
+        <AuthInput
+          label={t.auth.phone}
+          icon={Phone}
+          type="tel"
+          required
+          value={form.phone}
+          onChange={(v) => update("phone", v)}
+          placeholder="+51 999 888 777"
+          autoComplete="tel"
+          error={fieldErrors?.phone?.[0]}
+        />
 
-        <div>
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">{t.auth.password}</label>
-          <div className="relative">
-            <input type={showPassword ? "text" : "password"} required value={form.password} onChange={(e) => update("password", e.target.value)}
-              placeholder={t.auth.registerPasswordPlaceholder}
-              className={cn("w-full border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2.5 pr-10 text-sm bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent placeholder:text-slate-400")}
-              autoComplete="new-password" />
-            <button type="button" onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
-              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-            </button>
-          </div>
-          {fieldErrors?.password && <p className="text-xs text-red-500 mt-1">{fieldErrors.password[0]}</p>}
-          <p className="text-xs text-slate-400 mt-1">{t.auth.passwordHint}</p>
-        </div>
+        <AuthInput
+          label={t.auth.password}
+          icon={Lock}
+          type="password"
+          required
+          value={form.password}
+          onChange={(v) => update("password", v)}
+          placeholder={t.auth.registerPasswordPlaceholder}
+          autoComplete="new-password"
+          error={fieldErrors?.password?.[0]}
+          hint={t.auth.passwordHint}
+        />
 
         {generalError && !fieldErrors && (
-          <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2">
+          <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-xl px-4 py-2.5">
             <p className="text-sm text-red-600 dark:text-red-400">{generalError}</p>
           </div>
         )}
 
-        <button type="submit" disabled={register.isPending}
-          className={cn("w-full flex items-center justify-center gap-2 py-2.5 rounded-lg font-medium text-sm transition-all bg-brand-600 text-white hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed")}>
-          {register.isPending ? <span className="animate-spin w-4 h-4 border-2 border-white/30 border-t-white rounded-full" /> : <UserPlus size={16} />}
+        <button
+          type="submit"
+          disabled={register.isPending}
+          className={cn(
+            "w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-all",
+            "bg-gradient-to-r from-brand-600 to-brand-500 text-white",
+            "hover:from-brand-700 hover:to-brand-600 hover:shadow-lg hover:shadow-brand-600/25",
+            "active:scale-[0.98]",
+            "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none"
+          )}
+        >
+          {register.isPending ? (
+            <span className="animate-spin w-4 h-4 border-2 border-white/30 border-t-white rounded-full" />
+          ) : (
+            <UserPlus size={16} />
+          )}
           {register.isPending ? t.auth.creatingAccount : t.auth.register}
         </button>
 
+        <div className="relative py-2">
+          <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-200 dark:border-slate-700" /></div>
+          <div className="relative flex justify-center"><span className="bg-white dark:bg-slate-800 px-3 text-xs text-slate-400">o</span></div>
+        </div>
+
         <p className="text-center text-sm text-slate-500 dark:text-slate-400">
           {t.auth.hasAccount}{" "}
-          <Link to="/login" className="text-brand-600 hover:text-brand-700 font-medium">{t.auth.login}</Link>
+          <Link to="/login" className="text-brand-600 hover:text-brand-500 font-semibold transition-colors">
+            {t.auth.login}
+          </Link>
         </p>
       </form>
     </AuthLayout>
