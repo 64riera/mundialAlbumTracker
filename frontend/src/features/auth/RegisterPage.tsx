@@ -28,14 +28,10 @@ export function RegisterPage() {
   const update = (field: keyof RegisterInput, value: string) =>
     setForm((prev) => ({ ...prev, [field]: value }));
 
-  const errorMessage =
-    (register.error as { response?: { data?: { error?: string; details?: { fieldErrors?: Record<string, string[]> } } } })
-      .response?.data?.error ??
-    (register.error as { response?: { data?: { details?: { fieldErrors?: Record<string, string[]> } } } })
-      .response?.data?.details?.fieldErrors;
-
-  const fieldErrors = typeof errorMessage === "object" ? errorMessage : null;
-  const generalError = typeof errorMessage === "string" ? errorMessage : null;
+  const errorData = (register.error as { response?: { data?: { error?: string; details?: { fieldErrors?: Record<string, string[]> } } } } | null)
+    ?.response?.data;
+  const fieldErrors = errorData?.details?.fieldErrors ?? null;
+  const generalError = errorData?.error ?? (register.error ? "Error al crear cuenta" : null);
 
   return (
     <AuthLayout title="Crear cuenta" subtitle="Empieza a trackear tu álbum del Mundial 2026">
@@ -169,7 +165,7 @@ export function RegisterPage() {
           </p>
         </div>
 
-        {register.error && generalError && (
+        {generalError && !fieldErrors && (
           <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2">
             <p className="text-sm text-red-600 dark:text-red-400">{generalError}</p>
           </div>
