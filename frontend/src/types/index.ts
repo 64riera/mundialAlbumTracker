@@ -17,6 +17,7 @@ export interface SectionSummary {
 export interface StickerSummary {
   id: string;
   number: number;
+  code: string;
   name: string;
   type: StickerType;
   isShiny: boolean;

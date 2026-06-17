@@ -50,7 +50,7 @@ export function StickerCard({ sticker, onToggle, onIncrement }: StickerCardProps
       )}
 
       <div className="text-center">
-        <p className="text-[10px] text-slate-400 font-mono">#{sticker.number}</p>
+        <p className="text-[10px] text-slate-400 font-mono">{sticker.code}</p>
         <div className="text-2xl my-1">{typeIcon[sticker.type] ?? "📌"}</div>
         <p className="text-[11px] font-medium text-slate-700 leading-tight line-clamp-2">
           {sticker.name}

@@ -22,6 +22,7 @@ CREATE TABLE "Section" (
 CREATE TABLE "Sticker" (
     "id" TEXT NOT NULL,
     "number" INTEGER NOT NULL,
+    "code" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "type" "StickerType" NOT NULL,
     "isShiny" BOOLEAN NOT NULL DEFAULT false,
@@ -46,6 +47,9 @@ CREATE UNIQUE INDEX "Section_code_key" ON "Section"("code");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Sticker_number_key" ON "Sticker"("number");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Sticker_code_key" ON "Sticker"("code");
 
 -- CreateIndex
 CREATE INDEX "Sticker_sectionId_idx" ON "Sticker"("sectionId");

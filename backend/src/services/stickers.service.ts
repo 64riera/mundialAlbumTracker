@@ -15,6 +15,7 @@ export async function getStickers(status: StatusFilter = "all") {
   const mapped = stickers.map((s) => ({
     id: s.id,
     number: s.number,
+    code: s.code,
     name: s.name,
     type: s.type,
     isShiny: s.isShiny,
@@ -42,12 +43,44 @@ export async function getStickerByNumber(number: number) {
   return {
     id: sticker.id,
     number: sticker.number,
+    code: sticker.code,
     name: sticker.name,
     type: sticker.type,
     isShiny: sticker.isShiny,
     quantity: sticker.userSticker?.quantity ?? 0,
     section: sticker.section,
   };
+}
+
+export async function searchStickers(query: string) {
+  const q = query.trim();
+  if (!q) return [];
+
+  const results = await db.sticker.findMany({
+    where: {
+      OR: [
+        { code: { startsWith: q, mode: "insensitive" } },
+        { name: { contains: q, mode: "insensitive" } },
+      ],
+    },
+    include: {
+      userSticker: true,
+      section: { select: { code: true, name: true, flagEmoji: true } },
+    },
+    orderBy: { code: "asc" },
+    take: 15,
+  });
+
+  return results.map((s) => ({
+    id: s.id,
+    number: s.number,
+    code: s.code,
+    name: s.name,
+    type: s.type,
+    isShiny: s.isShiny,
+    quantity: s.userSticker?.quantity ?? 0,
+    section: s.section,
+  }));
 }
 
 export async function updateQuantity(number: number, quantity: number) {
@@ -80,5 +113,27 @@ export async function bulkCollect(numbers: number[]) {
   return {
     updated: updates.length,
     notFound: numbers.filter((n) => !stickers.find((s) => s.number === n)),
+  };
+}
+
+export async function bulkCollectByCodes(codes: string[]) {
+  const stickers = await db.sticker.findMany({
+    where: { code: { in: codes } },
+    include: { userSticker: true },
+  });
+
+  const updates = await Promise.all(
+    stickers.map((sticker) =>
+      db.userSticker.upsert({
+        where: { stickerId: sticker.id },
+        update: { quantity: { increment: 1 } },
+        create: { stickerId: sticker.id, quantity: 1 },
+      })
+    )
+  );
+
+  return {
+    updated: updates.length,
+    notFound: codes.filter((c) => !stickers.find((s) => s.code === c)),
   };
 }

@@ -1317,12 +1317,14 @@ async function main() {
 
   let stickerNumber = 1;
 
-  for (const stickerData of INTRO_STICKERS) {
+  for (let i = 0; i < INTRO_STICKERS.length; i++) {
+    const stickerData = INTRO_STICKERS[i];
     const sticker = await prisma.sticker.upsert({
       where: { number: stickerNumber },
-      update: {},
+      update: { code: `INTRO-${i + 1}` },
       create: {
         number: stickerNumber,
+        code: `INTRO-${i + 1}`,
         name: stickerData.name,
         type: stickerData.type,
         sectionId: introSection.id,
@@ -1348,12 +1350,14 @@ async function main() {
     },
   });
 
-  for (const stickerData of VENUE_STICKERS) {
+  for (let i = 0; i < VENUE_STICKERS.length; i++) {
+    const stickerData = VENUE_STICKERS[i];
     const sticker = await prisma.sticker.upsert({
       where: { number: stickerNumber },
-      update: {},
+      update: { code: `VENUES-${i + 1}` },
       create: {
         number: stickerNumber,
+        code: `VENUES-${i + 1}`,
         name: stickerData.name,
         type: stickerData.type,
         sectionId: venuesSection.id,
@@ -1383,12 +1387,15 @@ async function main() {
       },
     });
 
+    let teamStickerNum = 1;
+
     // Badge sticker
     const badge = await prisma.sticker.upsert({
       where: { number: stickerNumber },
-      update: {},
+      update: { code: `${team.code}-${teamStickerNum}` },
       create: {
         number: stickerNumber,
+        code: `${team.code}-${teamStickerNum}`,
         name: `Escudo ${team.name}`,
         type: StickerType.BADGE,
         sectionId: section.id,
@@ -1400,13 +1407,15 @@ async function main() {
       create: { stickerId: badge.id, quantity: 0 },
     });
     stickerNumber++;
+    teamStickerNum++;
 
     // Team photo
     const teamPhoto = await prisma.sticker.upsert({
       where: { number: stickerNumber },
-      update: {},
+      update: { code: `${team.code}-${teamStickerNum}` },
       create: {
         number: stickerNumber,
+        code: `${team.code}-${teamStickerNum}`,
         name: `Foto Equipo ${team.name}`,
         type: StickerType.SPECIAL,
         isShiny: true,
@@ -1419,14 +1428,16 @@ async function main() {
       create: { stickerId: teamPhoto.id, quantity: 0 },
     });
     stickerNumber++;
+    teamStickerNum++;
 
     // Players
     for (const playerName of team.players) {
       const player = await prisma.sticker.upsert({
         where: { number: stickerNumber },
-        update: {},
+        update: { code: `${team.code}-${teamStickerNum}` },
         create: {
           number: stickerNumber,
+          code: `${team.code}-${teamStickerNum}`,
           name: playerName,
           type: StickerType.PLAYER,
           sectionId: section.id,
@@ -1438,6 +1449,7 @@ async function main() {
         create: { stickerId: player.id, quantity: 0 },
       });
       stickerNumber++;
+      teamStickerNum++;
     }
   }
 

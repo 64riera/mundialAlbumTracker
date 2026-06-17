@@ -48,6 +48,7 @@ export async function getSectionByCode(code: string) {
   const stickers = section.stickers.map((s) => ({
     id: s.id,
     number: s.number,
+    code: s.code,
     name: s.name,
     type: s.type,
     isShiny: s.isShiny,

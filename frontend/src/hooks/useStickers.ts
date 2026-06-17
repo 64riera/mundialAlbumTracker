@@ -11,6 +11,18 @@ export function useStickers(status?: "all" | "owned" | "missing" | "duplicate") 
   });
 }
 
+export function useSearchStickers(query: string) {
+  return useQuery<StickerSummary[]>({
+    queryKey: ["stickers", "search", query],
+    queryFn: () =>
+      api
+        .get("/api/stickers/search", { params: { q: query } })
+        .then((r) => r.data),
+    enabled: query.trim().length >= 1,
+    staleTime: 30_000,
+  });
+}
+
 export function useCollectSticker() {
   const qc = useQueryClient();
   return useMutation({
@@ -30,6 +42,22 @@ export function useBulkCollect() {
   return useMutation({
     mutationFn: (numbers: number[]) =>
       api.post("/api/stickers/bulk-collect", { numbers }).then((r) => r.data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["section"] });
+      qc.invalidateQueries({ queryKey: ["sections"] });
+      qc.invalidateQueries({ queryKey: ["stats"] });
+      qc.invalidateQueries({ queryKey: ["stickers"] });
+    },
+  });
+}
+
+export function useBulkCollectByCodes() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (codes: string[]) =>
+      api
+        .post("/api/stickers/bulk-collect-codes", { codes })
+        .then((r) => r.data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["section"] });
       qc.invalidateQueries({ queryKey: ["sections"] });

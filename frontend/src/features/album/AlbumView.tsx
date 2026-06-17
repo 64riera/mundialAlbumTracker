@@ -26,8 +26,8 @@ export function AlbumView() {
         onSuccess: () => {
           showToast(
             newQuantity === 1
-              ? `✓ #${sticker.number} ${sticker.name} agregada`
-              : `✗ #${sticker.number} ${sticker.name} removida`,
+              ? `✓ ${sticker.code} ${sticker.name} agregada`
+              : `✗ ${sticker.code} ${sticker.name} removida`,
             newQuantity !== prevQuantity
               ? {
                   label: "Deshacer",
@@ -46,7 +46,7 @@ export function AlbumView() {
       { number: sticker.number, quantity: sticker.quantity + 1 },
       {
         onSuccess: () => {
-          showToast(`+1 duplicada: #${sticker.number} ${sticker.name}`);
+          showToast(`+1 duplicada: ${sticker.code} ${sticker.name}`);
         },
       }
     );

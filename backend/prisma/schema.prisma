@@ -29,6 +29,7 @@ enum SectionType {
 model Sticker {
   id          String      @id @default(cuid())
   number      Int         @unique
+  code        String      @unique
   name        String
   type        StickerType
   isShiny     Boolean     @default(false)
