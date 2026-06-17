@@ -47,12 +47,12 @@ function AppShell() {
 
         <main className="flex-1 overflow-y-auto pb-14 sm:pb-0">
           <Routes>
-            <Route path="/" element={<Navigate to="/album/INTRO" replace />} />
+            <Route path="/" element={<Navigate to="/album/FWC" replace />} />
             <Route path="/album/:sectionCode" element={<AlbumView />} />
             <Route path="/stats" element={<StatsView />} />
             <Route path="/duplicates" element={<DuplicatesView />} />
             <Route path="/import" element={<ImportPage />} />
-            <Route path="*" element={<Navigate to="/album/INTRO" replace />} />
+            <Route path="*" element={<Navigate to="/album/FWC" replace />} />
           </Routes>
         </main>
       </div>

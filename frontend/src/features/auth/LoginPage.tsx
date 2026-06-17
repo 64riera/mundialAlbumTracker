@@ -15,7 +15,7 @@ export function LoginPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     login.mutate(form, {
-      onSuccess: () => navigate("/album/INTRO", { replace: true }),
+      onSuccess: () => navigate("/album/FWC", { replace: true }),
     });
   };
 
