@@ -3,6 +3,7 @@ import cors from "cors";
 import helmet from "helmet";
 import cookieParser from "cookie-parser";
 import { env } from "./lib/env";
+import { db } from "./lib/db";
 import { errorHandler } from "./middleware/errorHandler";
 import { generalLimiter } from "./middleware/rateLimiter";
 import { requireAuth } from "./middleware/auth.middleware";
@@ -13,6 +14,9 @@ import { statsRouter } from "./routes/stats.router";
 import { ocrRouter } from "./routes/ocr.router";
 
 const app = express();
+
+// Required behind reverse proxies (Render, Railway) for correct client IP in rate limiter
+app.set("trust proxy", 1);
 
 app.use(helmet());
 app.use(
@@ -38,6 +42,18 @@ app.use("/api/ocr", requireAuth, ocrRouter);
 
 app.use(errorHandler);
 
-app.listen(env.PORT, () => {
-  console.log(`Server running on http://localhost:${env.PORT}`);
+const server = app.listen(env.PORT, () => {
+  console.log(`Server running on port ${env.PORT} [${env.NODE_ENV}]`);
 });
+
+function shutdown() {
+  console.log("Shutting down gracefully…");
+  server.close(async () => {
+    await db.$disconnect();
+    process.exit(0);
+  });
+  setTimeout(() => process.exit(1), 10_000);
+}
+
+process.on("SIGTERM", shutdown);
+process.on("SIGINT", shutdown);
