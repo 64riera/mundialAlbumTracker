@@ -2,6 +2,7 @@ import { useParams, Navigate } from "react-router-dom";
 import { useSectionDetail } from "@/hooks/useSections";
 import { useCollectSticker } from "@/hooks/useStickers";
 import { useUIStore } from "@/store/uiStore";
+import { useT } from "@/lib/i18n";
 import { StickerGrid } from "./StickerGrid";
 import { FilterBar } from "./FilterBar";
 import { ProgressBar } from "@/components/ui/ProgressBar";
@@ -9,6 +10,7 @@ import { showToast } from "@/components/ui/Toast";
 import type { StickerSummary } from "@/types";
 
 export function AlbumView() {
+  const t = useT();
   const { sectionCode } = useParams<{ sectionCode: string }>();
   const { data: section, isLoading, error } = useSectionDetail(sectionCode ?? "");
   const collectSticker = useCollectSticker();
@@ -25,15 +27,9 @@ export function AlbumView() {
       {
         onSuccess: () => {
           showToast(
-            newQuantity === 1
-              ? `✓ ${sticker.code} ${sticker.name} agregada`
-              : `✗ ${sticker.code} ${sticker.name} removida`,
+            `${newQuantity === 1 ? "+" : "-"} ${sticker.code} ${sticker.name} ${newQuantity === 1 ? t.album.added : t.album.removed}`,
             newQuantity !== prevQuantity
-              ? {
-                  label: "Deshacer",
-                  onClick: () =>
-                    collectSticker.mutate({ number: sticker.number, quantity: prevQuantity }),
-                }
+              ? { label: t.album.undo, onClick: () => collectSticker.mutate({ number: sticker.number, quantity: prevQuantity }) }
               : undefined
           );
         },
@@ -46,7 +42,7 @@ export function AlbumView() {
       { number: sticker.number, quantity: sticker.quantity + 1 },
       {
         onSuccess: () => {
-          showToast(`+1 duplicada: ${sticker.code} ${sticker.name}`);
+          showToast(`+1 ${t.album.duplicateAdded}: ${sticker.code} ${sticker.name}`);
         },
       }
     );
@@ -68,8 +64,7 @@ export function AlbumView() {
   if (error || !section) {
     return (
       <div className="p-6 text-center text-slate-500 dark:text-slate-400">
-        <div className="text-4xl mb-2">😕</div>
-        <p>No se encontró la sección</p>
+        <p>{t.album.sectionNotFound}</p>
       </div>
     );
   }
@@ -78,13 +73,11 @@ export function AlbumView() {
     <div className="p-4 md:p-6 space-y-5">
       <div className="flex flex-col sm:flex-row sm:items-center gap-3">
         <div className="flex items-center gap-3 flex-1">
-          {section.flagEmoji && (
-            <span className="text-4xl">{section.flagEmoji}</span>
-          )}
+          {section.flagEmoji && <span className="text-4xl">{section.flagEmoji}</span>}
           <div>
             <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">{section.name}</h1>
             <p className="text-sm text-slate-500 dark:text-slate-400">
-              {section.owned}/{section.total} figuritas •{" "}
+              {section.owned}/{section.total} {t.album.stickers} ·{" "}
               <span className="font-medium text-brand-600">{section.percentage}%</span>
             </p>
           </div>
@@ -93,19 +86,8 @@ export function AlbumView() {
           <ProgressBar value={section.owned} max={section.total} size="lg" />
         </div>
       </div>
-
-      <FilterBar
-        stickers={section.stickers}
-        active={stickerFilter}
-        onChange={setStickerFilter}
-      />
-
-      <StickerGrid
-        stickers={section.stickers}
-        filter={stickerFilter}
-        onToggle={handleToggle}
-        onIncrement={handleIncrement}
-      />
+      <FilterBar stickers={section.stickers} active={stickerFilter} onChange={setStickerFilter} />
+      <StickerGrid stickers={section.stickers} filter={stickerFilter} onToggle={handleToggle} onIncrement={handleIncrement} />
     </div>
   );
 }

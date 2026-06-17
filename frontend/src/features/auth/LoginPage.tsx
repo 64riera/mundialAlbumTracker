@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useLogin } from "@/hooks/useAuth";
+import { useT } from "@/lib/i18n";
 import { AuthLayout } from "./AuthLayout";
 import { cn } from "@/lib/utils";
 import { Eye, EyeOff, LogIn } from "lucide-react";
 import type { LoginInput } from "@/types";
 
 export function LoginPage() {
+  const t = useT();
   const navigate = useNavigate();
   const login = useLogin();
   const [form, setForm] = useState<LoginInput>({ email: "", password: "" });
@@ -23,11 +25,11 @@ export function LoginPage() {
     setForm((prev) => ({ ...prev, [field]: value }));
 
   return (
-    <AuthLayout title="Iniciar sesión" subtitle="Mundial 2026 - Álbum Panini Tracker">
+    <AuthLayout title={t.auth.login} subtitle={t.auth.subtitle}>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">
-            Email
+            {t.auth.email}
           </label>
           <input
             type="email"
@@ -47,7 +49,7 @@ export function LoginPage() {
 
         <div>
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">
-            Contraseña
+            {t.auth.password}
           </label>
           <div className="relative">
             <input
@@ -55,7 +57,7 @@ export function LoginPage() {
               required
               value={form.password}
               onChange={(e) => update("password", e.target.value)}
-              placeholder="Tu contraseña"
+              placeholder={t.auth.passwordPlaceholder}
               className={cn(
                 "w-full border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2.5 pr-10 text-sm",
                 "bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100",
@@ -77,7 +79,7 @@ export function LoginPage() {
         {login.error && (
           <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2">
             <p className="text-sm text-red-600 dark:text-red-400">
-              {(login.error as { response?: { data?: { error?: string } } }).response?.data?.error ?? "Error al iniciar sesión"}
+              {(login.error as { response?: { data?: { error?: string } } } | null)?.response?.data?.error ?? t.auth.loginError}
             </p>
           </div>
         )}
@@ -96,13 +98,13 @@ export function LoginPage() {
           ) : (
             <LogIn size={16} />
           )}
-          {login.isPending ? "Ingresando..." : "Iniciar sesión"}
+          {login.isPending ? t.auth.loggingIn : t.auth.login}
         </button>
 
         <p className="text-center text-sm text-slate-500 dark:text-slate-400">
-          ¿No tienes cuenta?{" "}
+          {t.auth.noAccount}{" "}
           <Link to="/register" className="text-brand-600 hover:text-brand-700 font-medium">
-            Crear cuenta
+            {t.auth.register}
           </Link>
         </p>
       </form>

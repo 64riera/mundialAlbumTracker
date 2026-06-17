@@ -3,32 +3,34 @@ import { useOverviewStats } from "@/hooks/useStats";
 import { useLogout } from "@/hooks/useAuth";
 import { useUIStore } from "@/store/uiStore";
 import { useAuthStore } from "@/store/authStore";
+import { useT } from "@/lib/i18n";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { LangToggle } from "@/components/ui/LangToggle";
 import { Menu, LogOut, X, Trophy } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const NAV_LINKS = [
-  { to: "/stats", label: "Inicio" },
-  { to: "/album/FWC", label: "Album", match: "/album" },
-  { to: "/import", label: "Importar" },
-  { to: "/duplicates", label: "Duplicadas" },
-];
-
 export function Header() {
+  const t = useT();
   const { data: stats } = useOverviewStats();
   const { setSidebarOpen, sidebarOpen } = useUIStore();
   const user = useAuthStore((s) => s.user);
   const logout = useLogout();
 
+  const NAV_LINKS = [
+    { to: "/stats", label: t.nav.home },
+    { to: "/album/FWC", label: t.nav.album, match: "/album" },
+    { to: "/import", label: t.nav.import },
+    { to: "/duplicates", label: t.nav.duplicates },
+  ];
+
   return (
     <header className="bg-brand-900 text-white shadow-md z-50 relative">
-      {/* Top row */}
       <div className="px-3 sm:px-5 py-2.5 flex items-center gap-3">
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
           className="text-white/70 hover:text-white transition-colors p-1 -ml-1"
-          aria-label={sidebarOpen ? "Cerrar menu" : "Abrir menu"}
+          aria-label={sidebarOpen ? t.nav.closeMenu : t.nav.openMenu}
         >
           {sidebarOpen ? <X size={22} className="md:hidden" /> : null}
           <Menu size={22} className={sidebarOpen ? "hidden md:block" : ""} />
@@ -47,7 +49,7 @@ export function Header() {
         {stats && (
           <div className="hidden md:flex items-center gap-3 ml-2 bg-white/5 rounded-lg px-3 py-1.5">
             <div className="text-right">
-              <p className="text-[11px] text-brand-300 leading-none">Progreso</p>
+              <p className="text-[11px] text-brand-300 leading-none">{t.nav.progress}</p>
               <p className="text-sm font-bold leading-none mt-0.5">{stats.percentage}%</p>
             </div>
             <div className="w-24">
@@ -58,6 +60,7 @@ export function Header() {
         )}
 
         <div className="ml-auto flex items-center gap-2">
+          <LangToggle />
           <ThemeToggle />
 
           {user && (
@@ -72,14 +75,13 @@ export function Header() {
           <button
             onClick={() => logout.mutate()}
             className="text-brand-400 hover:text-white hover:bg-white/10 p-1.5 rounded-lg transition-colors"
-            title="Cerrar sesion"
+            title={t.nav.logout}
           >
             <LogOut size={16} />
           </button>
         </div>
       </div>
 
-      {/* Nav row — desktop only */}
       <nav className="hidden sm:flex items-center gap-1 px-5 pb-2">
         {NAV_LINKS.map(({ to, label, match }) => (
           <NavLink
@@ -96,7 +98,7 @@ export function Header() {
             }}
           >
             {label}
-            {label === "Duplicadas" && stats?.duplicate ? (
+            {to === "/duplicates" && stats?.duplicate ? (
               <span className="ml-1.5 text-[10px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded-full">
                 {stats.duplicate}
               </span>

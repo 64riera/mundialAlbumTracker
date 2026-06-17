@@ -2,6 +2,7 @@ import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { useSections } from "@/hooks/useSections";
 import { useOverviewStats } from "@/hooks/useStats";
+import { useT } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { ChevronDown, ChevronRight, BookOpen, Sparkles, Trophy } from "lucide-react";
 import type { SectionSummary } from "@/types";
@@ -49,14 +50,8 @@ function ConfederationGroup({
         <span className="flex-1 text-left text-slate-500 dark:text-slate-400 uppercase tracking-wider">
           {meta?.label ?? confederation}
         </span>
-        <span className="text-[10px] font-medium text-slate-400 dark:text-slate-500 tabular-nums">
-          {pct}%
-        </span>
-        {open ? (
-          <ChevronDown size={12} className="text-slate-400" />
-        ) : (
-          <ChevronRight size={12} className="text-slate-400" />
-        )}
+        <span className="text-[10px] font-medium text-slate-400 dark:text-slate-500 tabular-nums">{pct}%</span>
+        {open ? <ChevronDown size={12} className="text-slate-400" /> : <ChevronRight size={12} className="text-slate-400" />}
       </button>
 
       {open && (
@@ -116,32 +111,27 @@ interface SidebarProps {
 }
 
 export function Sidebar({ onNavigate }: SidebarProps) {
+  const t = useT();
   const { data: sections = [] } = useSections();
   const { data: stats } = useOverviewStats();
 
-  const specialSections = sections.filter(
-    (s) => s.type === "INTRO" || s.type === "SPECIAL"
-  );
+  const specialSections = sections.filter((s) => s.type === "INTRO" || s.type === "SPECIAL");
   const teamSections = sections.filter((s) => s.type === "TEAM");
 
-  const groupedTeams = CONFEDERATION_ORDER.reduce(
-    (acc, conf) => {
-      const confTeams = teamSections.filter((s) => s.confederation === conf);
-      if (confTeams.length > 0) acc[conf] = confTeams;
-      return acc;
-    },
-    {} as Record<string, SectionSummary[]>
-  );
+  const groupedTeams = CONFEDERATION_ORDER.reduce((acc, conf) => {
+    const confTeams = teamSections.filter((s) => s.confederation === conf);
+    if (confTeams.length > 0) acc[conf] = confTeams;
+    return acc;
+  }, {} as Record<string, SectionSummary[]>);
 
   const pct = stats?.percentage ?? 0;
 
   return (
     <nav className="h-full overflow-y-auto flex flex-col">
-      {/* Global progress */}
       <div className="px-4 pt-4 pb-3">
         <div className="bg-gradient-to-br from-brand-800 to-brand-900 rounded-xl p-3.5 text-white">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-medium text-brand-200">Mi album</span>
+            <span className="text-xs font-medium text-brand-200">{t.sidebar.myAlbum}</span>
             <span className="text-lg font-bold">{pct}%</span>
           </div>
           <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
@@ -152,17 +142,16 @@ export function Sidebar({ onNavigate }: SidebarProps) {
           </div>
           {stats && (
             <div className="flex justify-between mt-2 text-[10px] text-brand-300">
-              <span>{stats.owned + stats.duplicate} obtenidas</span>
-              <span>{stats.missing} faltan</span>
+              <span>{stats.owned + stats.duplicate} {t.sidebar.obtained}</span>
+              <span>{stats.missing} {t.sidebar.missing}</span>
             </div>
           )}
         </div>
       </div>
 
-      {/* Special sections */}
       <div className="px-3 pb-2">
         <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest px-2 mb-1.5">
-          Secciones
+          {t.sidebar.sections}
         </p>
         {specialSections.map((section) => {
           const Icon = SPECIAL_ICONS[section.code] ?? BookOpen;
@@ -184,10 +173,7 @@ export function Sidebar({ onNavigate }: SidebarProps) {
                 <>
                   <Icon size={16} className={isActive ? "text-brand-200" : "text-slate-400"} />
                   <span className="flex-1 font-medium">{section.name}</span>
-                  <span className={cn(
-                    "text-[10px] tabular-nums",
-                    isActive ? "text-brand-100" : "text-slate-400 dark:text-slate-500"
-                  )}>
+                  <span className={cn("text-[10px] tabular-nums", isActive ? "text-brand-100" : "text-slate-400 dark:text-slate-500")}>
                     {section.percentage}%
                   </span>
                 </>
@@ -197,19 +183,13 @@ export function Sidebar({ onNavigate }: SidebarProps) {
         })}
       </div>
 
-      {/* Teams */}
       <div className="border-t border-slate-100 dark:border-slate-800 pt-2 flex-1 px-1">
         <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest px-4 mb-1.5">
-          Selecciones
+          {t.sidebar.teams}
         </p>
         {CONFEDERATION_ORDER.map((conf) =>
           groupedTeams[conf] ? (
-            <ConfederationGroup
-              key={conf}
-              confederation={conf}
-              sections={groupedTeams[conf]}
-              onNavigate={onNavigate}
-            />
+            <ConfederationGroup key={conf} confederation={conf} sections={groupedTeams[conf]} onNavigate={onNavigate} />
           ) : null
         )}
       </div>

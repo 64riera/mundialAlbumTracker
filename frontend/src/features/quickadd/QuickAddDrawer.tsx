@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useBulkCollectByCodes, useSearchStickers } from "@/hooks/useStickers";
 import { useUIStore } from "@/store/uiStore";
+import { useT } from "@/lib/i18n";
 import { showToast } from "@/components/ui/Toast";
 import { X, Plus, Search, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -19,6 +20,7 @@ function useDebounce<T>(value: T, delay: number): T {
 }
 
 export function QuickAddDrawer() {
+  const t = useT();
   const { quickAddOpen, setQuickAddOpen } = useUIStore();
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<SelectedSticker[]>([]);
@@ -52,9 +54,8 @@ export function QuickAddDrawer() {
       onSuccess: (data) => {
         setRecent((prev) => [codes.join(", "), ...prev].slice(0, 5));
         setSelected([]);
-        showToast(
-          `${data.updated} figurita${data.updated !== 1 ? "s" : ""} agregada${data.updated !== 1 ? "s" : ""}`
-        );
+        const n = data.updated;
+        showToast(`${n} ${n !== 1 ? t.quickadd.stickersAdded : t.quickadd.stickerAdded}`);
       },
     });
   };
@@ -121,7 +122,7 @@ export function QuickAddDrawer() {
               <div className="flex items-center gap-2">
                 <Plus size={20} className="text-brand-600" />
                 <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100">
-                  Agregar figuritas
+                  {t.quickadd.title}
                 </h2>
               </div>
               <button
@@ -158,11 +159,10 @@ export function QuickAddDrawer() {
 
               <div>
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">
-                  Buscar por codigo o nombre
+                  {t.quickadd.searchLabel}
                 </label>
                 <p className="text-xs text-slate-400 dark:text-slate-500 mb-2">
-                  Ej: <span className="font-mono">ARG15</span>,{" "}
-                  <span className="font-mono">ESP</span>, Messi, Mbappe...
+                  {t.quickadd.searchHint}
                 </p>
 
                 <div className="relative">
@@ -181,7 +181,7 @@ export function QuickAddDrawer() {
                       }}
                       onFocus={() => query.trim() && setDropdownOpen(true)}
                       onKeyDown={handleKeyDown}
-                      placeholder="ARG3, Messi, ESP..."
+                      placeholder={t.quickadd.searchPlaceholder}
                       className={cn(
                         "w-full border border-slate-300 dark:border-slate-600 rounded-lg pl-8 pr-3 py-2.5 text-sm",
                         "bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100",
@@ -248,7 +248,7 @@ export function QuickAddDrawer() {
                                     ) : sticker.quantity > 0 ? (
                                       <span className="text-[10px] text-emerald-600 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded-full shrink-0">
                                         {sticker.quantity === 1
-                                          ? "tengo"
+                                          ? t.quickadd.iHave
                                           : `x${sticker.quantity}`}
                                       </span>
                                     ) : null}
@@ -259,7 +259,7 @@ export function QuickAddDrawer() {
                           </ul>
                         ) : (
                           <p className="px-4 py-3 text-sm text-slate-400 dark:text-slate-500 text-center">
-                            Sin resultados para "{debouncedQuery}"
+                            {t.quickadd.noResults} "{debouncedQuery}"
                           </p>
                         )}
                       </motion.div>
@@ -278,16 +278,16 @@ export function QuickAddDrawer() {
                 )}
               >
                 {bulkCollect.isPending
-                  ? "Agregando..."
+                  ? t.quickadd.adding
                   : selected.length > 0
-                    ? `Agregar ${selected.length} figurita${selected.length !== 1 ? "s" : ""}`
-                    : "Selecciona figuritas para agregar"}
+                    ? (selected.length !== 1 ? t.quickadd.addCountPlural : t.quickadd.addCount).replace("{count}", String(selected.length))
+                    : t.quickadd.selectToAdd}
               </button>
 
               {recent.length > 0 && (
                 <div>
                   <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-2">
-                    Ultimas agregadas
+                    {t.quickadd.recentlyAdded}
                   </p>
                   <div className="space-y-1">
                     {recent.map((entry, i) => (
@@ -322,7 +322,6 @@ export function QuickAddFAB() {
         "flex items-center justify-center",
         "transition-all hover:scale-105 active:scale-95"
       )}
-      title="Agregar figuritas"
     >
       <Plus size={24} />
     </button>

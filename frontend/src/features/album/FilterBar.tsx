@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n";
 import { LayoutGrid, CheckCircle, XCircle, Copy } from "lucide-react";
 import type { StickerSummary } from "@/types";
 
@@ -10,14 +11,16 @@ interface FilterBarProps {
   onChange: (f: Filter) => void;
 }
 
-const FILTERS: { key: Filter; label: string; Icon: typeof LayoutGrid }[] = [
-  { key: "all", label: "Todas", Icon: LayoutGrid },
-  { key: "owned", label: "Tengo", Icon: CheckCircle },
-  { key: "missing", label: "Faltan", Icon: XCircle },
-  { key: "duplicate", label: "Duplicadas", Icon: Copy },
-];
-
 export function FilterBar({ stickers, active, onChange }: FilterBarProps) {
+  const t = useT();
+
+  const FILTERS: { key: Filter; label: string; Icon: typeof LayoutGrid }[] = [
+    { key: "all", label: t.filter.all, Icon: LayoutGrid },
+    { key: "owned", label: t.filter.owned, Icon: CheckCircle },
+    { key: "missing", label: t.filter.missing, Icon: XCircle },
+    { key: "duplicate", label: t.filter.duplicate, Icon: Copy },
+  ];
+
   const counts: Record<Filter, number> = {
     all: stickers.length,
     owned: stickers.filter((s) => s.quantity === 1).length,
@@ -40,12 +43,10 @@ export function FilterBar({ stickers, active, onChange }: FilterBarProps) {
         >
           <Icon size={14} />
           <span>{label}</span>
-          <span
-            className={cn(
-              "text-xs rounded-full px-1.5 py-0.5",
-              active === key ? "bg-brand-500 text-white" : "bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400"
-            )}
-          >
+          <span className={cn(
+            "text-xs rounded-full px-1.5 py-0.5",
+            active === key ? "bg-brand-500 text-white" : "bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400"
+          )}>
             {counts[key]}
           </span>
         </button>
