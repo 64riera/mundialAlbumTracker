@@ -162,8 +162,8 @@ export function QuickAddDrawer() {
                   Buscar por código o nombre
                 </label>
                 <p className="text-xs text-slate-400 mb-2">
-                  Ej: <span className="font-mono">ARG-1</span>,{" "}
-                  <span className="font-mono">ESP</span>, Messi, Ronaldo...
+                  Ej: <span className="font-mono">ARG15</span>,{" "}
+                  <span className="font-mono">ESP</span>, Messi, Mbappé...
                 </p>
 
                 <div className="relative">
@@ -182,7 +182,7 @@ export function QuickAddDrawer() {
                       }}
                       onFocus={() => query.trim() && setDropdownOpen(true)}
                       onKeyDown={handleKeyDown}
-                      placeholder="ARG-3, Messi, ESP..."
+                      placeholder="ARG3, Messi, ESP..."
                       className={cn(
                         "w-full border border-slate-300 rounded-lg pl-8 pr-3 py-2.5 text-sm",
                         "focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent"

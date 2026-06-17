@@ -52,8 +52,13 @@ export async function getStickerByNumber(number: number) {
   };
 }
 
+function normalizeQuery(raw: string): string {
+  // Allow "ARG1" or "ARG 1" to match "ARG-1"
+  return raw.trim().replace(/^([A-Za-z]+)\s*(\d+)$/, "$1-$2");
+}
+
 export async function searchStickers(query: string) {
-  const q = query.trim();
+  const q = normalizeQuery(query);
   if (!q) return [];
 
   const results = await db.sticker.findMany({
