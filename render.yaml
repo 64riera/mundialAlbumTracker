@@ -2,7 +2,7 @@ services:
   - type: web
     name: mundial-album-api
     runtime: docker
-    repo: https://github.com/YOUR_USERNAME/mundialAlbumTracker
+    repo: https://github.com/64riera/mundialAlbumTracker
     rootDir: backend
     dockerfilePath: ./Dockerfile
     dockerContext: .
