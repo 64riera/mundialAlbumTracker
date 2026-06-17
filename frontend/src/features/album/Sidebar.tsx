@@ -12,7 +12,6 @@ import {
   Sparkles,
   Trophy,
   Calendar,
-  Camera,
   Download,
   ArrowLeftRight,
   Copy,
@@ -317,12 +316,6 @@ export function Sidebar({ onNavigate }: SidebarProps) {
             to="/matches"
             label={t.nav.matches}
             Icon={Calendar}
-            onNavigate={onNavigate}
-          />
-          <SidebarLink
-            to="/scanner"
-            label={t.nav.scanner}
-            Icon={Camera}
             onNavigate={onNavigate}
           />
           <SidebarLink

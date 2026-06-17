@@ -22,7 +22,6 @@ export function Header() {
   const NAV_LINKS = [
     { to: "/stats", label: t.nav.home },
     { to: "/album/FWC", label: t.nav.album, match: "/album" },
-    { to: "/scanner", label: t.nav.scanner, match: "/scanner" },
     { to: "/import", label: t.nav.import },
     { to: "/compare", label: t.nav.compare, match: "/compare" },
     { to: "/duplicates", label: t.nav.duplicates },
