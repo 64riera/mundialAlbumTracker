@@ -26,7 +26,7 @@ export function ScannerPage() {
   const { data: allStickers = [] } = useStickers();
   const validCodes = useMemo(() => allStickers.map((s) => s.code), [allStickers]);
   const [cameraError, setCameraError] = useState(false);
-  const [showDebug, setShowDebug] = useState(false);
+  const [showDebug, setShowDebug] = useState(true);
 
   const {
     isReady,
@@ -99,9 +99,9 @@ export function ScannerPage() {
 
         {isScanning && (
           <>
-            <div className="absolute inset-x-0 top-0 h-[25%] bg-black/40 pointer-events-none" />
-            <div className="absolute inset-x-0 bottom-0 h-[25%] bg-black/40 pointer-events-none" />
-            <div className="absolute left-3 right-3 top-[25%] bottom-[25%] border-2 border-brand-400 rounded-xl pointer-events-none">
+            <div className="absolute inset-x-0 top-0 h-[20%] bg-black/40 pointer-events-none" />
+            <div className="absolute inset-x-0 bottom-0 h-[20%] bg-black/40 pointer-events-none" />
+            <div className="absolute left-3 right-3 top-[20%] bottom-[20%] border-2 border-brand-400 rounded-xl pointer-events-none">
               <div className="absolute top-0 left-0 right-0 h-0.5 bg-brand-400 animate-[scan_2s_ease-in-out_infinite]" />
             </div>
           </>

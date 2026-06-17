@@ -1,4 +1,4 @@
-const CODE_PATTERN = /(?<![A-Z])([A-Z]{2,4})\s*[-–—.]?\s*(\d{1,2})(?!\d)/gi;
+const CODE_PATTERN = /(?<![A-Z])([A-Z]{2,4})\s*[-–—.:;,]?\s*(\d{1,2})(?!\d)/gi;
 
 function levenshtein(a: string, b: string): number {
   const m = a.length;
@@ -35,6 +35,23 @@ export function extractStickerCodes(rawText: string): string[] {
   return [...new Set(codes)];
 }
 
+function fuzzyFind(candidate: string, validCodes: string[], maxDistance: number): string | null {
+  const upper = candidate.toUpperCase();
+  if (validCodes.includes(upper)) return upper;
+
+  let bestCode = "";
+  let bestDist = maxDistance + 1;
+  for (const valid of validCodes) {
+    const dist = levenshtein(upper, valid);
+    if (dist < bestDist) {
+      bestDist = dist;
+      bestCode = valid;
+    }
+    if (dist === 0) return valid;
+  }
+  return bestDist <= maxDistance ? bestCode : null;
+}
+
 export function matchToValidCodes(
   candidates: string[],
   validCodes: string[],
@@ -43,28 +60,31 @@ export function matchToValidCodes(
   const matched: string[] = [];
 
   for (const candidate of candidates) {
-    const upper = candidate.toUpperCase();
-
-    if (validCodes.includes(upper)) {
-      matched.push(upper);
-      continue;
-    }
-
-    let bestCode = "";
-    let bestDist = maxDistance + 1;
-    for (const valid of validCodes) {
-      const dist = levenshtein(upper, valid);
-      if (dist < bestDist) {
-        bestDist = dist;
-        bestCode = valid;
-      }
-      if (dist === 0) break;
-    }
-
-    if (bestDist <= maxDistance) {
-      matched.push(bestCode);
-    }
+    const found = fuzzyFind(candidate, validCodes, maxDistance);
+    if (found) matched.push(found);
   }
 
   return [...new Set(matched)];
+}
+
+export function matchRawTextToValidCodes(
+  rawText: string,
+  validCodes: string[],
+  maxDistance = 2
+): string[] {
+  const candidates = extractStickerCodes(rawText);
+  const fromRegex = matchToValidCodes(candidates, validCodes, maxDistance);
+  if (fromRegex.length > 0) return fromRegex;
+
+  // Fallback: split raw text into words and try fuzzy matching chunks
+  const words = rawText.toUpperCase().replace(/[^A-Z0-9\s]/g, " ").split(/\s+/).filter(Boolean);
+  const fallback: string[] = [];
+
+  for (let i = 0; i < words.length - 1; i++) {
+    const combo = `${words[i]}-${words[i + 1]}`;
+    const found = fuzzyFind(combo, validCodes, maxDistance);
+    if (found) fallback.push(found);
+  }
+
+  return [...new Set(fallback)];
 }

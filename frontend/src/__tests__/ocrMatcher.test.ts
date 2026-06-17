@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { extractStickerCodes, matchToValidCodes } from "../lib/ocrMatcher";
+import { extractStickerCodes, matchToValidCodes, matchRawTextToValidCodes } from "../lib/ocrMatcher";
 
 const VALID_CODES = [
   "ARG-1", "ARG-2", "ARG-15",
@@ -111,5 +111,30 @@ describe("matchToValidCodes", () => {
 
   it("handles empty valid codes", () => {
     expect(matchToValidCodes(["ARG-1"], [])).toEqual([]);
+  });
+});
+
+describe("matchRawTextToValidCodes", () => {
+  it("matches from regex extraction first", () => {
+    expect(matchRawTextToValidCodes("KOR-9", VALID_CODES)).toEqual(["KOR-9"]);
+  });
+
+  it("falls back to word-pair matching when regex finds nothing", () => {
+    // Tesseract might output "KOR 9" as two separate words with no pattern match
+    // The fallback joins consecutive words as "KOR-9" and fuzzy-matches
+    expect(matchRawTextToValidCodes("KOR 9", VALID_CODES)).toEqual(["KOR-9"]);
+  });
+
+  it("handles misread text via fallback", () => {
+    // Tesseract outputs "KOD 9" — regex finds KOD-9, fuzzy matches to KOR-9
+    expect(matchRawTextToValidCodes("KOD 9", VALID_CODES)).toEqual(["KOR-9"]);
+  });
+
+  it("handles noisy OCR with valid code buried in text", () => {
+    expect(matchRawTextToValidCodes("xxx TUN 14 yyy", VALID_CODES)).toEqual(["TUN-14"]);
+  });
+
+  it("returns empty for gibberish", () => {
+    expect(matchRawTextToValidCodes("ZZZZZ QQQQ", VALID_CODES)).toEqual([]);
   });
 });

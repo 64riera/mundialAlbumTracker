@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { createWorker, Worker } from "tesseract.js";
-import { extractStickerCodes, matchToValidCodes } from "@/lib/ocrMatcher";
+import { matchRawTextToValidCodes, extractStickerCodes } from "@/lib/ocrMatcher";
 
 interface OcrScannerState {
   isReady: boolean;
@@ -11,26 +11,27 @@ interface OcrScannerState {
   debugImage: string;
 }
 
-const SCALE = 2;
+const SCALE = 3;
 
-function adaptiveThreshold(ctx: CanvasRenderingContext2D, w: number, h: number) {
+function enhanceForOcr(ctx: CanvasRenderingContext2D, w: number, h: number) {
   const img = ctx.getImageData(0, 0, w, h);
   const d = img.data;
 
-  let sum = 0;
+  // Grayscale + contrast stretch
+  let min = 255, max = 0;
   for (let i = 0; i < d.length; i += 4) {
-    sum += d[i] * 0.299 + d[i + 1] * 0.587 + d[i + 2] * 0.114;
+    const gray = Math.round(d[i] * 0.299 + d[i + 1] * 0.587 + d[i + 2] * 0.114);
+    d[i] = gray; d[i + 1] = gray; d[i + 2] = gray;
+    if (gray < min) min = gray;
+    if (gray > max) max = gray;
   }
-  const mean = sum / (w * h);
-  const thresh = mean * 0.85;
 
+  const range = max - min || 1;
   for (let i = 0; i < d.length; i += 4) {
-    const gray = d[i] * 0.299 + d[i + 1] * 0.587 + d[i + 2] * 0.114;
-    const val = gray > thresh ? 255 : 0;
-    d[i] = val;
-    d[i + 1] = val;
-    d[i + 2] = val;
+    const stretched = Math.round(((d[i] - min) / range) * 255);
+    d[i] = stretched; d[i + 1] = stretched; d[i + 2] = stretched;
   }
+
   ctx.putImageData(img, 0, 0);
 }
 
@@ -63,7 +64,8 @@ export function useOcrScanner(validCodes: string[]) {
       logger: () => {},
     });
     await worker.setParameters({
-      tessedit_char_whitelist: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789- ",
+      tessedit_char_whitelist: "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 -",
+      tessedit_pageseg_mode: "11" as unknown as undefined, // sparse text
     });
     workerRef.current = worker;
     setState((s) => ({ ...s, isReady: true }));
@@ -72,7 +74,7 @@ export function useOcrScanner(validCodes: string[]) {
   const startCamera = useCallback(async (video: HTMLVideoElement) => {
     videoRef.current = video;
     const stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } },
+      video: { facingMode: "environment", width: { ideal: 1920 }, height: { ideal: 1080 } },
     });
     video.srcObject = stream;
     await video.play();
@@ -90,7 +92,8 @@ export function useOcrScanner(validCodes: string[]) {
       const vh = video.videoHeight;
       if (vw === 0 || vh === 0) return;
 
-      const cropH = Math.round(vh * 0.5);
+      // Crop center 60% height, full width
+      const cropH = Math.round(vh * 0.6);
       const cropY = Math.round((vh - cropH) / 2);
 
       const canvas = getOffscreen();
@@ -104,7 +107,14 @@ export function useOcrScanner(validCodes: string[]) {
       ctx.imageSmoothingQuality = "high";
       ctx.drawImage(video, 0, cropY, vw, cropH, 0, 0, canvas.width, canvas.height);
 
-      adaptiveThreshold(ctx, canvas.width, canvas.height);
+      // Sharpen: slight unsharp mask via composite
+      ctx.globalAlpha = 0.4;
+      ctx.globalCompositeOperation = "multiply";
+      ctx.drawImage(canvas, 0, 0);
+      ctx.globalAlpha = 1;
+      ctx.globalCompositeOperation = "source-over";
+
+      enhanceForOcr(ctx, canvas.width, canvas.height);
 
       const dataUrl = canvas.toDataURL("image/png");
       const { data } = await worker.recognize(dataUrl);
@@ -112,10 +122,9 @@ export function useOcrScanner(validCodes: string[]) {
 
       setState((s) => ({ ...s, debugText: rawText, debugImage: dataUrl }));
 
-      const candidates = extractStickerCodes(rawText);
       const codes = validCodes.length > 0
-        ? matchToValidCodes(candidates, validCodes)
-        : candidates;
+        ? matchRawTextToValidCodes(rawText, validCodes)
+        : extractStickerCodes(rawText);
       if (codes.length === 0) return;
 
       const newCodes = codes.filter((c) => !scannedSetRef.current.has(c));
