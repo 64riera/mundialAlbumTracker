@@ -22,7 +22,6 @@ export function ScannerPage() {
   const t = useT();
   const navigate = useNavigate();
   const videoRef = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const bulkCollect = useBulkCollectByCodes();
   const [cameraError, setCameraError] = useState(false);
   const [showDebug, setShowDebug] = useState(false);
@@ -33,6 +32,7 @@ export function ScannerPage() {
     scannedCodes,
     lastDetected,
     debugText,
+    debugImage,
     initWorker,
     startCamera,
     startScanning,
@@ -46,19 +46,11 @@ export function ScannerPage() {
     initWorker();
   }, [initWorker]);
 
-  const handleStartCamera = async () => {
-    if (!videoRef.current || !canvasRef.current) return;
-    try {
-      await startCamera(videoRef.current, canvasRef.current);
-      startScanning();
-    } catch {
-      setCameraError(true);
-    }
-  };
-
   useEffect(() => {
-    if (isReady && videoRef.current && canvasRef.current) {
-      handleStartCamera();
+    if (isReady && videoRef.current) {
+      startCamera(videoRef.current)
+        .then(() => startScanning())
+        .catch(() => setCameraError(true));
     }
     return cleanup;
   }, [isReady]);
@@ -101,25 +93,18 @@ export function ScannerPage() {
 
       {/* Camera viewport */}
       <div className="relative rounded-2xl overflow-hidden bg-black aspect-[4/3]">
-        <video
-          ref={videoRef}
-          playsInline
-          muted
-          className="w-full h-full object-cover"
-        />
+        <video ref={videoRef} playsInline muted className="w-full h-full object-cover" />
 
-        {/* Scan region overlay — matches the 35% center crop */}
         {isScanning && (
           <>
-            <div className="absolute inset-x-0 top-0 h-[32.5%] bg-black/40 pointer-events-none" />
-            <div className="absolute inset-x-0 bottom-0 h-[32.5%] bg-black/40 pointer-events-none" />
-            <div className="absolute left-3 right-3 top-[32.5%] bottom-[32.5%] border-2 border-brand-400 rounded-xl pointer-events-none">
+            <div className="absolute inset-x-0 top-0 h-[25%] bg-black/40 pointer-events-none" />
+            <div className="absolute inset-x-0 bottom-0 h-[25%] bg-black/40 pointer-events-none" />
+            <div className="absolute left-3 right-3 top-[25%] bottom-[25%] border-2 border-brand-400 rounded-xl pointer-events-none">
               <div className="absolute top-0 left-0 right-0 h-0.5 bg-brand-400 animate-[scan_2s_ease-in-out_infinite]" />
             </div>
           </>
         )}
 
-        {/* Status badge */}
         <div className="absolute top-3 left-3 z-10">
           {!isReady ? (
             <span className="flex items-center gap-1.5 bg-black/60 backdrop-blur-sm text-white text-xs px-2.5 py-1 rounded-full">
@@ -134,7 +119,6 @@ export function ScannerPage() {
           ) : null}
         </div>
 
-        {/* Last detected flash */}
         {lastDetected && (
           <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-brand-600/90 backdrop-blur-sm text-white text-sm font-bold font-mono px-4 py-1.5 rounded-full animate-bounce z-10">
             {lastDetected}
@@ -149,25 +133,20 @@ export function ScannerPage() {
         )}
       </div>
 
-      {/* Debug: processed canvas + OCR text */}
+      {/* Debug panel */}
       {showDebug && (
         <div className="space-y-2">
-          <canvas
-            ref={canvasRef}
-            className="w-full rounded-lg border border-slate-200 dark:border-slate-700"
-          />
+          {debugImage && (
+            <img src={debugImage} alt="OCR input" className="w-full rounded-lg border border-slate-200 dark:border-slate-700" />
+          )}
           <div className="bg-slate-100 dark:bg-slate-800 rounded-lg p-2">
             <p className="text-[10px] font-mono text-slate-500 dark:text-slate-400 break-all whitespace-pre-wrap">
-              {debugText || "—"}
+              OCR: {debugText || "—"}
             </p>
           </div>
         </div>
       )}
 
-      {/* Hidden canvas when debug is off */}
-      {!showDebug && <canvas ref={canvasRef} className="hidden" />}
-
-      {/* Scan / Pause toggle */}
       {isReady && !cameraError && (
         <button
           onClick={isScanning ? stopScanning : startScanning}
@@ -182,33 +161,22 @@ export function ScannerPage() {
         </button>
       )}
 
-      {/* Scanned codes list */}
       {scannedCodes.length > 0 && (
         <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-4 space-y-3">
           <div className="flex items-center justify-between">
             <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">
               {t.scanner.detected} ({scannedCodes.length})
             </p>
-            <button
-              onClick={clearAll}
-              className="flex items-center gap-1 text-xs text-slate-400 hover:text-red-500 transition-colors"
-            >
-              <Trash2 size={12} />
-              {t.scanner.clearAll}
+            <button onClick={clearAll} className="flex items-center gap-1 text-xs text-slate-400 hover:text-red-500 transition-colors">
+              <Trash2 size={12} />{t.scanner.clearAll}
             </button>
           </div>
 
           <div className="flex flex-wrap gap-1.5">
             {scannedCodes.map((code) => (
-              <span
-                key={code}
-                className="inline-flex items-center gap-1 bg-brand-50 dark:bg-brand-900/30 border border-brand-200 dark:border-brand-700 text-brand-700 dark:text-brand-300 text-xs font-bold font-mono px-2 py-1 rounded-lg"
-              >
+              <span key={code} className="inline-flex items-center gap-1 bg-brand-50 dark:bg-brand-900/30 border border-brand-200 dark:border-brand-700 text-brand-700 dark:text-brand-300 text-xs font-bold font-mono px-2 py-1 rounded-lg">
                 {code}
-                <button
-                  onClick={() => removeCode(code)}
-                  className="text-brand-400 hover:text-brand-700 transition-colors"
-                >
+                <button onClick={() => removeCode(code)} className="text-brand-400 hover:text-brand-700 transition-colors">
                   <X size={10} />
                 </button>
               </span>
@@ -226,14 +194,8 @@ export function ScannerPage() {
               "disabled:opacity-50 disabled:cursor-not-allowed"
             )}
           >
-            {bulkCollect.isPending ? (
-              <Loader2 size={16} className="animate-spin" />
-            ) : (
-              <Check size={16} />
-            )}
-            {bulkCollect.isPending
-              ? t.quickadd.adding
-              : `${t.scanner.confirm} (${scannedCodes.length})`}
+            {bulkCollect.isPending ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
+            {bulkCollect.isPending ? t.quickadd.adding : `${t.scanner.confirm} (${scannedCodes.length})`}
           </button>
         </div>
       )}
