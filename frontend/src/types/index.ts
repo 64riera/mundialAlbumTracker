@@ -67,6 +67,29 @@ export interface OverviewStats {
   percentage: number;
 }
 
+export interface CompareSticker {
+  code: string;
+  name: string;
+  number: number;
+  myQty: number;
+  section: { code: string; name: string; flagEmoji: string | null };
+}
+
+export interface CompareResult {
+  summary: {
+    iCanGive: number;
+    theyCanGive: number;
+    perfectTrades: number;
+    bothHave: number;
+    bothNeed: number;
+  };
+  iCanGive: CompareSticker[];
+  theyCanGive: CompareSticker[];
+  perfectTrades: { mine: CompareSticker; theirs: CompareSticker }[];
+  bothHave: CompareSticker[];
+  bothNeed: CompareSticker[];
+}
+
 export interface SectionStats {
   code: string;
   name: string;

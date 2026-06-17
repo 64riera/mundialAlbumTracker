@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { BookOpen, BarChart3, Copy, QrCode } from "lucide-react";
+import { BookOpen, BarChart3, Copy, ArrowLeftRight } from "lucide-react";
 import { useT } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
@@ -9,7 +9,7 @@ export function MobileNav() {
   const NAV_ITEMS = [
     { to: "/stats", label: t.nav.home, Icon: BarChart3, match: "/stats" },
     { to: "/album/FWC", label: t.nav.album, Icon: BookOpen, match: "/album" },
-    { to: "/import", label: t.nav.import, Icon: QrCode, match: "/import" },
+    { to: "/compare", label: t.nav.compare, Icon: ArrowLeftRight, match: "/compare" },
     { to: "/duplicates", label: t.nav.duplicates, Icon: Copy, match: "/duplicates" },
   ];
 

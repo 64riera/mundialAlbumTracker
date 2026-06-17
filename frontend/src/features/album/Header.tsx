@@ -21,6 +21,7 @@ export function Header() {
     { to: "/stats", label: t.nav.home },
     { to: "/album/FWC", label: t.nav.album, match: "/album" },
     { to: "/import", label: t.nav.import },
+    { to: "/compare", label: t.nav.compare, match: "/compare" },
     { to: "/duplicates", label: t.nav.duplicates },
   ];
 
