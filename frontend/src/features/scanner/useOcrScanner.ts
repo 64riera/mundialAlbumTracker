@@ -23,6 +23,11 @@ export function useOcrScanner() {
   const scannedSetRef = useRef(new Set<string>());
 
   const startCamera = useCallback(async (video: HTMLVideoElement) => {
+    if (video.srcObject) {
+      (video.srcObject as MediaStream).getTracks().forEach((t) => t.stop());
+      video.srcObject = null;
+    }
+
     videoRef.current = video;
     if (!canvasRef.current) canvasRef.current = document.createElement("canvas");
 

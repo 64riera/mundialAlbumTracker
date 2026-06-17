@@ -24,10 +24,16 @@ export function ScannerPage() {
   } = useOcrScanner();
 
   useEffect(() => {
+    let cancelled = false;
     if (videoRef.current) {
-      startCamera(videoRef.current).catch(() => setCameraError(true));
+      startCamera(videoRef.current).catch(() => {
+        if (!cancelled) setCameraError(true);
+      });
     }
-    return cleanup;
+    return () => {
+      cancelled = true;
+      cleanup();
+    };
   }, []);
 
   const handleConfirm = () => {
