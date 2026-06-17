@@ -4,7 +4,7 @@ import { useSections } from "@/hooks/useSections";
 import { useOverviewStats } from "@/hooks/useStats";
 import { useT } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
-import { ChevronDown, ChevronRight, BookOpen, Sparkles, Trophy, Calendar } from "lucide-react";
+import { ChevronDown, ChevronRight, BookOpen, Sparkles, Trophy, Calendar, Camera, Download, ArrowLeftRight, Copy } from "lucide-react";
 import type { SectionSummary } from "@/types";
 
 const CONFEDERATION_ORDER = ["CONMEBOL", "UEFA", "CONCACAF", "CAF", "AFC", "OFC", "PLAYOFF"];
@@ -106,6 +106,40 @@ function TeamLink({ section, onNavigate }: { section: SectionSummary; onNavigate
   );
 }
 
+function SidebarLink({
+  to,
+  label,
+  Icon,
+  onNavigate,
+}: {
+  to: string;
+  label: string;
+  Icon: typeof BookOpen;
+  onNavigate?: () => void;
+}) {
+  return (
+    <NavLink
+      to={to}
+      onClick={onNavigate}
+      className={({ isActive }) =>
+        cn(
+          "flex items-center gap-2.5 px-3 py-2 rounded-lg transition-all text-[13px]",
+          isActive
+            ? "bg-brand-600 text-white shadow-sm shadow-brand-600/20"
+            : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+        )
+      }
+    >
+      {({ isActive }) => (
+        <>
+          <Icon size={16} className={isActive ? "text-brand-200" : "text-slate-400"} />
+          <span className="flex-1 font-medium">{label}</span>
+        </>
+      )}
+    </NavLink>
+  );
+}
+
 interface SidebarProps {
   onNavigate?: () => void;
 }
@@ -149,27 +183,15 @@ export function Sidebar({ onNavigate }: SidebarProps) {
         </div>
       </div>
 
-      <div className="px-3 pb-2">
-        <NavLink
-          to="/matches"
-          onClick={onNavigate}
-          className={({ isActive }) =>
-            cn(
-              "flex items-center gap-2.5 px-3 py-2 rounded-lg transition-all text-[13px] mb-2",
-              isActive
-                ? "bg-brand-600 text-white shadow-sm shadow-brand-600/20"
-                : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
-            )
-          }
-        >
-          {({ isActive }) => (
-            <>
-              <Calendar size={16} className={isActive ? "text-brand-200" : "text-slate-400"} />
-              <span className="flex-1 font-medium">{t.nav.matches}</span>
-            </>
-          )}
-        </NavLink>
+      <div className="px-3 pb-2 space-y-0.5">
+        <SidebarLink to="/matches" label={t.nav.matches} Icon={Calendar} onNavigate={onNavigate} />
+        <SidebarLink to="/scanner" label={t.nav.scanner} Icon={Camera} onNavigate={onNavigate} />
+        <SidebarLink to="/import" label={t.nav.import} Icon={Download} onNavigate={onNavigate} />
+        <SidebarLink to="/compare" label={t.nav.compare} Icon={ArrowLeftRight} onNavigate={onNavigate} />
+        <SidebarLink to="/duplicates" label={t.nav.duplicates} Icon={Copy} onNavigate={onNavigate} />
+      </div>
 
+      <div className="px-3 pb-2">
         <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest px-2 mb-1.5">
           {t.sidebar.sections}
         </p>
