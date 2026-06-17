@@ -10,6 +10,7 @@ const schema = z.object({
   JWT_SECRET: z.string().min(32),
   JWT_REFRESH_SECRET: z.string().min(32),
   CORS_ORIGIN: z.string().default("http://localhost:5173"),
+  FOOTBALL_API_KEY: z.string().optional(),
 });
 
 const parsed = schema.safeParse(process.env);

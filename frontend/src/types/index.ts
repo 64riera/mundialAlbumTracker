@@ -90,6 +90,78 @@ export interface CompareResult {
   bothNeed: CompareSticker[];
 }
 
+// --- Matches ---
+
+export interface MatchTeam {
+  id: number;
+  name: string;
+  shortName: string;
+  tla: string;
+  crest: string;
+}
+
+export type MatchStatus =
+  | "SCHEDULED"
+  | "TIMED"
+  | "IN_PLAY"
+  | "PAUSED"
+  | "FINISHED"
+  | "SUSPENDED"
+  | "POSTPONED"
+  | "CANCELLED"
+  | "AWARDED";
+
+export interface Match {
+  id: number;
+  utcDate: string;
+  status: MatchStatus;
+  matchday: number;
+  stage: string;
+  group: string | null;
+  homeTeam: MatchTeam;
+  awayTeam: MatchTeam;
+  score: {
+    winner: string | null;
+    fullTime: { home: number | null; away: number | null };
+    halfTime: { home: number | null; away: number | null };
+  };
+}
+
+export interface GroupRow {
+  position: number;
+  team: {
+    id: number;
+    name: string;
+    shortName: string;
+    tla: string;
+    crest: string;
+  };
+  playedGames: number;
+  won: number;
+  draw: number;
+  lost: number;
+  points: number;
+  goalsFor: number;
+  goalsAgainst: number;
+  goalDifference: number;
+}
+
+export interface GroupStanding {
+  group: string;
+  table: GroupRow[];
+}
+
+export interface MatchesResponse {
+  matches: Match[];
+  hasLive: boolean;
+}
+
+export interface StandingsResponse {
+  standings: GroupStanding[];
+}
+
+// --- Stats ---
+
 export interface SectionStats {
   code: string;
   name: string;

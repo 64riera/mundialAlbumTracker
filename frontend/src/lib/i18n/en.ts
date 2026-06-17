@@ -5,6 +5,7 @@ export const en = {
     import: "Import",
     duplicates: "Duplicates",
     compare: "Compare",
+    matches: "Matches",
     scanner: "Scan",
     logout: "Log out",
     openMenu: "Open menu",

@@ -7,6 +7,7 @@ import { DuplicatesView } from "@/features/duplicates/DuplicatesView";
 import { ImportPage } from "@/features/import/ImportPage";
 import { ComparePage } from "@/features/compare/ComparePage";
 import { ScannerPage } from "@/features/scanner/ScannerPage";
+import { MatchesPage } from "@/features/matches/MatchesPage";
 import { QuickAddDrawer, QuickAddFAB } from "@/features/quickadd/QuickAddDrawer";
 import { ToastContainer } from "@/components/ui/Toast";
 import { MobileNav } from "@/components/MobileNav";
@@ -55,6 +56,7 @@ function AppShell() {
             <Route path="/import" element={<ImportPage />} />
             <Route path="/compare" element={<ComparePage />} />
             <Route path="/scanner" element={<ScannerPage />} />
+            <Route path="/matches" element={<MatchesPage />} />
             <Route path="*" element={<Navigate to="/stats" replace />} />
           </Routes>
         </main>

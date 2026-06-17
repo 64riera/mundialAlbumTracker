@@ -22,4 +22,6 @@ services:
         generateValue: true
       - key: CORS_ORIGIN
         sync: false
+      - key: FOOTBALL_API_KEY
+        sync: false
     preDeployCommand: npx prisma migrate deploy

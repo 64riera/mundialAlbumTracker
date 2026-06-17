@@ -12,6 +12,7 @@ import { sectionsRouter } from "./routes/sections.router";
 import { stickersRouter } from "./routes/stickers.router";
 import { statsRouter } from "./routes/stats.router";
 import { ocrRouter } from "./routes/ocr.router";
+import { matchesRouter } from "./routes/matches.router";
 
 const app = express();
 
@@ -39,6 +40,7 @@ app.use("/api/sections", requireAuth, sectionsRouter);
 app.use("/api/stickers", requireAuth, stickersRouter);
 app.use("/api/stats", requireAuth, statsRouter);
 app.use("/api/ocr", requireAuth, ocrRouter);
+app.use("/api/matches", requireAuth, matchesRouter);
 
 app.use(errorHandler);
 
