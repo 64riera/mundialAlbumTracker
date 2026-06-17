@@ -23,7 +23,7 @@ export function Toast({ message, action, onClose, duration = 4000 }: ToastProps)
   return (
     <div
       className={cn(
-        "flex items-center gap-3 bg-slate-900 text-white px-4 py-3 rounded-lg shadow-lg",
+        "flex items-center gap-3 bg-slate-900 dark:bg-slate-700 text-white px-4 py-3 rounded-lg shadow-lg",
         "transition-all duration-300",
         visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
       )}

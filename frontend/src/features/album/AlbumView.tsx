@@ -55,10 +55,10 @@ export function AlbumView() {
   if (isLoading) {
     return (
       <div className="p-6">
-        <div className="h-8 bg-slate-200 rounded animate-pulse mb-4 w-1/3" />
+        <div className="h-8 bg-slate-200 dark:bg-slate-700 rounded animate-pulse mb-4 w-1/3" />
         <div className="grid grid-cols-5 gap-3">
           {Array.from({ length: 20 }).map((_, i) => (
-            <div key={i} className="h-28 bg-slate-200 rounded-xl animate-pulse" />
+            <div key={i} className="h-28 bg-slate-200 dark:bg-slate-700 rounded-xl animate-pulse" />
           ))}
         </div>
       </div>
@@ -67,7 +67,7 @@ export function AlbumView() {
 
   if (error || !section) {
     return (
-      <div className="p-6 text-center text-slate-500">
+      <div className="p-6 text-center text-slate-500 dark:text-slate-400">
         <div className="text-4xl mb-2">😕</div>
         <p>No se encontró la sección</p>
       </div>
@@ -82,8 +82,8 @@ export function AlbumView() {
             <span className="text-4xl">{section.flagEmoji}</span>
           )}
           <div>
-            <h1 className="text-2xl font-bold text-slate-800">{section.name}</h1>
-            <p className="text-sm text-slate-500">
+            <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">{section.name}</h1>
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               {section.owned}/{section.total} figuritas •{" "}
               <span className="font-medium text-brand-600">{section.percentage}%</span>
             </p>

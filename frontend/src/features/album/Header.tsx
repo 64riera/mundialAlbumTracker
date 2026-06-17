@@ -2,6 +2,7 @@ import { NavLink } from "react-router-dom";
 import { useOverviewStats } from "@/hooks/useStats";
 import { useUIStore } from "@/store/uiStore";
 import { ProgressBar } from "@/components/ui/ProgressBar";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { Menu, BarChart3, Copy } from "lucide-react";
 
 export function Header() {
@@ -43,6 +44,8 @@ export function Header() {
       )}
 
       <div className="ml-auto flex items-center gap-2">
+        <ThemeToggle />
+
         <NavLink
           to="/stats"
           className={({ isActive }) =>

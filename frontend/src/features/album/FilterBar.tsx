@@ -34,7 +34,7 @@ export function FilterBar({ stickers, active, onChange }: FilterBarProps) {
             "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all",
             active === key
               ? "bg-brand-600 text-white shadow-sm"
-              : "bg-white text-slate-600 border border-slate-200 hover:border-brand-300 hover:text-brand-700"
+              : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-brand-300 hover:text-brand-700 dark:hover:text-brand-400"
           )}
         >
           <span>{emoji}</span>
@@ -42,7 +42,7 @@ export function FilterBar({ stickers, active, onChange }: FilterBarProps) {
           <span
             className={cn(
               "text-xs rounded-full px-1.5 py-0.5",
-              active === key ? "bg-brand-500 text-white" : "bg-slate-100 text-slate-500"
+              active === key ? "bg-brand-500 text-white" : "bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400"
             )}
           >
             {counts[key]}

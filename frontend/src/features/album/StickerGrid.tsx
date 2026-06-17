@@ -18,7 +18,7 @@ export function StickerGrid({ stickers, filter, onToggle, onIncrement }: Sticker
 
   if (filtered.length === 0) {
     return (
-      <div className="text-center py-16 text-slate-400">
+      <div className="text-center py-16 text-slate-400 dark:text-slate-500">
         <div className="text-4xl mb-2">🔍</div>
         <p className="text-sm">Sin figuritas en esta categoría</p>
       </div>

@@ -30,14 +30,14 @@ export function ProgressBar({
 
   return (
     <div className={cn("w-full", className)}>
-      <div className={cn("w-full bg-slate-200 rounded-full overflow-hidden", heights[size])}>
+      <div className={cn("w-full bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden", heights[size])}>
         <div
           className={cn("h-full rounded-full transition-all duration-500", barColor)}
           style={{ width: `${pct}%` }}
         />
       </div>
       {showLabel && (
-        <span className="text-xs text-slate-500 mt-0.5 block">{pct}%</span>
+        <span className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 block">{pct}%</span>
       )}
     </div>
   );

@@ -7,20 +7,21 @@ import { DuplicatesView } from "@/features/duplicates/DuplicatesView";
 import { QuickAddDrawer, QuickAddFAB } from "@/features/quickadd/QuickAddDrawer";
 import { ToastContainer } from "@/components/ui/Toast";
 import { useUIStore } from "@/store/uiStore";
+import { useThemeEffect } from "@/hooks/useTheme";
 import { cn } from "@/lib/utils";
 
 export default function App() {
   const { sidebarOpen } = useUIStore();
+  useThemeEffect();
 
   return (
-    <div className="h-screen flex flex-col bg-slate-50 overflow-hidden">
+    <div className="h-screen flex flex-col bg-slate-50 dark:bg-slate-950 overflow-hidden">
       <Header />
 
       <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar */}
         <aside
           className={cn(
-            "bg-white border-r border-slate-200 transition-all duration-300 flex-shrink-0",
+            "bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700 transition-all duration-300 flex-shrink-0",
             "hidden md:block",
             sidebarOpen ? "w-64" : "w-0"
           )}
@@ -28,7 +29,6 @@ export default function App() {
           <Sidebar />
         </aside>
 
-        {/* Main content */}
         <main className="flex-1 overflow-y-auto">
           <Routes>
             <Route path="/" element={<Navigate to="/album/INTRO" replace />} />

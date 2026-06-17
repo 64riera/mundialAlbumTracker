@@ -31,7 +31,7 @@ export function StatsView() {
     return (
       <div className="p-6 space-y-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="h-24 bg-slate-200 rounded-xl animate-pulse" />
+          <div key={i} className="h-24 bg-slate-200 dark:bg-slate-700 rounded-xl animate-pulse" />
         ))}
       </div>
     );
@@ -67,7 +67,7 @@ export function StatsView() {
 
   return (
     <div className="p-4 md:p-6 space-y-6">
-      <h1 className="text-2xl font-bold text-slate-800">📊 Estadísticas</h1>
+      <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">📊 Estadísticas</h1>
 
       {/* Overview cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -77,16 +77,16 @@ export function StatsView() {
           { label: "Faltan", value: overview.missing, color: "text-red-500" },
           { label: "Duplicadas", value: overview.duplicate, color: "text-amber-500" },
         ].map(({ label, value, color }) => (
-          <div key={label} className="bg-white rounded-xl border border-slate-200 p-4 text-center">
+          <div key={label} className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4 text-center">
             <p className={`text-3xl font-bold ${color}`}>{value}</p>
-            <p className="text-sm text-slate-500 mt-1">{label}</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{label}</p>
           </div>
         ))}
       </div>
 
-      <div className="bg-white rounded-xl border border-slate-200 p-4">
+      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
         <div className="flex items-center justify-between mb-3">
-          <p className="font-semibold text-slate-700">Progreso global</p>
+          <p className="font-semibold text-slate-700 dark:text-slate-200">Progreso global</p>
           <span className="text-brand-600 font-bold text-lg">{overview.percentage}%</span>
         </div>
         <ProgressBar value={overview.owned + overview.duplicate} max={overview.total} size="lg" />
@@ -94,8 +94,8 @@ export function StatsView() {
 
       {/* Charts row */}
       <div className="grid md:grid-cols-2 gap-4">
-        <div className="bg-white rounded-xl border border-slate-200 p-4">
-          <p className="font-semibold text-slate-700 mb-4">Distribución</p>
+        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
+          <p className="font-semibold text-slate-700 dark:text-slate-200 mb-4">Distribución</p>
           <ResponsiveContainer width="100%" height={200}>
             <PieChart>
               <Pie data={pieData} cx="50%" cy="50%" innerRadius={55} outerRadius={85} dataKey="value">
@@ -110,14 +110,14 @@ export function StatsView() {
             {pieData.map((d) => (
               <div key={d.name} className="flex items-center gap-1.5">
                 <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: d.color }} />
-                <span className="text-xs text-slate-600">{d.name}</span>
+                <span className="text-xs text-slate-600 dark:text-slate-300">{d.name}</span>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-slate-200 p-4">
-          <p className="font-semibold text-slate-700 mb-4">Por confederación</p>
+        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
+          <p className="font-semibold text-slate-700 dark:text-slate-200 mb-4">Por confederación</p>
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={confData} layout="vertical">
               <XAxis type="number" domain={[0, 100]} unit="%" tick={{ fontSize: 11 }} />
@@ -135,13 +135,13 @@ export function StatsView() {
 
       {/* Complete teams */}
       {complete.length > 0 && (
-        <div className="bg-white rounded-xl border border-slate-200 p-4">
-          <p className="font-semibold text-slate-700 mb-3">🏆 Equipos completos ({complete.length})</p>
+        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
+          <p className="font-semibold text-slate-700 dark:text-slate-200 mb-3">🏆 Equipos completos ({complete.length})</p>
           <div className="flex flex-wrap gap-2">
             {complete.map((s) => (
-              <div key={s.code} className="flex items-center gap-1.5 bg-gold-50 border border-gold-300 rounded-full px-3 py-1">
+              <div key={s.code} className="flex items-center gap-1.5 bg-gold-50 dark:bg-gold-900/30 border border-gold-300 dark:border-gold-600 rounded-full px-3 py-1">
                 <span>{s.flagEmoji}</span>
-                <span className="text-sm font-medium text-gold-700">{s.name}</span>
+                <span className="text-sm font-medium text-gold-700 dark:text-gold-300">{s.name}</span>
                 <span className="text-gold-500 text-xs">✓</span>
               </div>
             ))}
@@ -150,16 +150,16 @@ export function StatsView() {
       )}
 
       {/* Almost complete */}
-      <div className="bg-white rounded-xl border border-slate-200 p-4">
-        <p className="font-semibold text-slate-700 mb-3">🎯 Casi completos</p>
+      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
+        <p className="font-semibold text-slate-700 dark:text-slate-200 mb-3">🎯 Casi completos</p>
         <div className="space-y-3">
           {almostComplete.map((s) => (
             <div key={s.code} className="flex items-center gap-3">
               <span className="text-xl w-7">{s.flagEmoji}</span>
               <div className="flex-1">
                 <div className="flex justify-between text-sm mb-1">
-                  <span className="text-slate-700 font-medium">{s.name}</span>
-                  <span className="text-slate-500">{s.owned}/{s.total}</span>
+                  <span className="text-slate-700 dark:text-slate-200 font-medium">{s.name}</span>
+                  <span className="text-slate-500 dark:text-slate-400">{s.owned}/{s.total}</span>
                 </div>
                 <ProgressBar value={s.owned} max={s.total} size="sm" />
               </div>
@@ -172,20 +172,20 @@ export function StatsView() {
       </div>
 
       {/* All teams heatmap */}
-      <div className="bg-white rounded-xl border border-slate-200 p-4">
-        <p className="font-semibold text-slate-700 mb-3">Todos los equipos</p>
+      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
+        <p className="font-semibold text-slate-700 dark:text-slate-200 mb-3">Todos los equipos</p>
         <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2">
           {teamsSorted.map((s) => (
             <div
               key={s.code}
               title={`${s.name}: ${s.percentage}%`}
-              className="flex flex-col items-center gap-1 p-2 rounded-lg border border-slate-100"
+              className="flex flex-col items-center gap-1 p-2 rounded-lg border border-slate-100 dark:border-slate-700"
               style={{
                 backgroundColor: `rgba(34,197,94,${s.percentage / 100 * 0.5 + (s.percentage === 100 ? 0.5 : 0)})`,
               }}
             >
               <span className="text-lg">{s.flagEmoji}</span>
-              <span className="text-[10px] text-slate-600 font-medium">{s.percentage}%</span>
+              <span className="text-[10px] text-slate-600 dark:text-slate-300 font-medium">{s.percentage}%</span>
             </div>
           ))}
         </div>

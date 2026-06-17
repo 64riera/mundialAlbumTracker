@@ -117,15 +117,15 @@ export function QuickAddDrawer() {
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="fixed right-0 top-0 h-full w-full max-w-sm bg-white shadow-2xl z-50 flex flex-col"
+            className="fixed right-0 top-0 h-full w-full max-w-sm bg-white dark:bg-slate-900 shadow-2xl z-50 flex flex-col"
           >
-            <div className="flex items-center justify-between p-5 border-b border-slate-100">
-              <h2 className="text-lg font-bold text-slate-800">
+            <div className="flex items-center justify-between p-5 border-b border-slate-100 dark:border-slate-700">
+              <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100">
                 ➕ Agregar figuritas
               </h2>
               <button
                 onClick={() => setQuickAddOpen(false)}
-                className="text-slate-400 hover:text-slate-600 transition-colors"
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
               >
                 <X size={20} />
               </button>
@@ -138,7 +138,7 @@ export function QuickAddDrawer() {
                   {selected.map((s) => (
                     <span
                       key={s.code}
-                      className="inline-flex items-center gap-1 bg-brand-50 border border-brand-200 text-brand-700 text-xs font-medium px-2 py-1 rounded-full"
+                      className="inline-flex items-center gap-1 bg-brand-50 dark:bg-brand-900/30 border border-brand-200 dark:border-brand-700 text-brand-700 dark:text-brand-300 text-xs font-medium px-2 py-1 rounded-full"
                     >
                       <span className="font-bold font-mono">{s.code}</span>
                       <span className="text-brand-400 truncate max-w-[80px]">
@@ -158,10 +158,10 @@ export function QuickAddDrawer() {
 
               {/* Search input with autocomplete */}
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">
                   Buscar por código o nombre
                 </label>
-                <p className="text-xs text-slate-400 mb-2">
+                <p className="text-xs text-slate-400 dark:text-slate-500 mb-2">
                   Ej: <span className="font-mono">ARG15</span>,{" "}
                   <span className="font-mono">ESP</span>, Messi, Mbappé...
                 </p>
@@ -184,7 +184,8 @@ export function QuickAddDrawer() {
                       onKeyDown={handleKeyDown}
                       placeholder="ARG3, Messi, ESP..."
                       className={cn(
-                        "w-full border border-slate-300 rounded-lg pl-8 pr-3 py-2.5 text-sm",
+                        "w-full border border-slate-300 dark:border-slate-600 rounded-lg pl-8 pr-3 py-2.5 text-sm",
+                        "bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100",
                         "focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent"
                       )}
                       autoFocus
@@ -201,7 +202,7 @@ export function QuickAddDrawer() {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -4 }}
                         transition={{ duration: 0.1 }}
-                        className="absolute z-10 top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-lg overflow-hidden"
+                        className="absolute z-10 top-full left-0 right-0 mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg overflow-hidden"
                       >
                         {searchResults.length > 0 ? (
                           <ul className="max-h-56 overflow-y-auto">
@@ -218,8 +219,8 @@ export function QuickAddDrawer() {
                                     className={cn(
                                       "w-full flex items-center gap-3 px-3 py-2.5 text-left text-sm transition-colors",
                                       isSelected
-                                        ? "bg-slate-50 cursor-default"
-                                        : "hover:bg-brand-50"
+                                        ? "bg-slate-50 dark:bg-slate-700 cursor-default"
+                                        : "hover:bg-brand-50 dark:hover:bg-brand-900/30"
                                     )}
                                   >
                                     <span className="font-mono font-bold text-brand-600 text-xs w-16 shrink-0">
@@ -230,8 +231,8 @@ export function QuickAddDrawer() {
                                         className={cn(
                                           "truncate",
                                           isSelected
-                                            ? "text-slate-400"
-                                            : "text-slate-700"
+                                            ? "text-slate-400 dark:text-slate-500"
+                                            : "text-slate-700 dark:text-slate-200"
                                         )}
                                       >
                                         {sticker.name}
@@ -259,7 +260,7 @@ export function QuickAddDrawer() {
                             })}
                           </ul>
                         ) : (
-                          <p className="px-4 py-3 text-sm text-slate-400 text-center">
+                          <p className="px-4 py-3 text-sm text-slate-400 dark:text-slate-500 text-center">
                             Sin resultados para &ldquo;{debouncedQuery}&rdquo;
                           </p>
                         )}
@@ -289,14 +290,14 @@ export function QuickAddDrawer() {
               {/* Recent history */}
               {recent.length > 0 && (
                 <div>
-                  <p className="text-xs font-medium text-slate-500 mb-2">
+                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-2">
                     Últimas agregadas
                   </p>
                   <div className="space-y-1">
                     {recent.map((entry, i) => (
                       <div
                         key={i}
-                        className="flex items-center gap-1.5 text-xs text-slate-600 bg-slate-50 rounded px-2 py-1.5"
+                        className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 rounded px-2 py-1.5"
                       >
                         <Check size={10} className="text-emerald-500 shrink-0" />
                         <span className="font-mono">{entry}</span>
