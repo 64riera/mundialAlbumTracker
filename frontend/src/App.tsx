@@ -45,7 +45,7 @@ function AppShell() {
           <Sidebar onNavigate={() => setSidebarOpen(false)} />
         </aside>
 
-        <main className="flex-1 overflow-y-auto pb-14 sm:pb-0">
+        <main className="flex-1 overflow-y-auto pb-[72px] sm:pb-0">
           <Routes>
             <Route path="/" element={<Navigate to="/stats" replace />} />
             <Route path="/album/:sectionCode" element={<AlbumView />} />
